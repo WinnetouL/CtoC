@@ -5,6 +5,7 @@
 # prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and quitting
 
 import socket
+import asyncio
 
 
 
@@ -22,19 +23,20 @@ class client2Class:
         print("---- Client 2 active ----\n")
 
 
-    def main(self):
+    async def main(self):
+        
         try:
             print('Connection from client-2: ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-1: ', client2Class.TCP_IP)
             msg = "Welcome from CLIENT-2!"
-            self.sendCli2(msg)
-            self.recvCli2()
+            await self.sendCli2(msg)
+            await self.recvCli2()
             msg = input("Second msg to client-1?: ")
-            self.sendCli2(msg)
+            # await self.sendCli2(msg)
         except ConnectionResetError as e:
             print("Client-1 closed the window\n", "OS-Error:", e, "\nApplication quitted")
 
 
-    def sendCli2(self, msg):
+    async def sendCli2(self, msg):
 
         while True:
             msg = f"{len(msg):<{client2Class.HEADERSIZE}}" + msg     # rebuild msg: counting length of msg and append the length number in front of the msg within the defined headersize
@@ -42,7 +44,7 @@ class client2Class:
             break
 
 
-    def recvCli2(self):
+    async def recvCli2(self):
 
         while True:
             fullClient1Msg = ''
@@ -64,9 +66,16 @@ class client2Class:
             break
 
 
+    def mainTest(self): # ship into __init__()?
+        loop = asyncio.get_event_loop()
+        asyncio.ensure_future(self.main())
+        # loop.run_forever()
+        loop.run_until_complete(self.main())
+        loop.close()
+
 
 client2Object = client2Class()
-client2Object.main()
+client2Object.mainTest()
 
 
 
