@@ -1,55 +1,77 @@
-import asyncio
+# to client-2: receive msg; send msg; receive msg
+# within defined functions
+# just one socket in use
+# modular structure
+# prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and restarting
+# some tweaking for the userside
+
 import socket
 
 
-class MyProtocol(asyncio.Protocol):
 
-    def __init__(self, loop):
-        self.transport = None
-        self.on_con_lost = loop.create_future()
+class client1Class:
+    # class variabels:
+    TCP_IP = socket.gethostbyname(socket.gethostname())
+#    TCP_IP = '192.168.2.134'
+    TCP_PORT = 1234
+    HEADERSIZE = 10
 
-    def connection_made(self, transport):
-        self.transport = transport
-
-    ######def data_received(self, data):
-    #    print("Received:", data.decode())
-
-        # We are done: close the transport;
-        # connection_lost() will be called automatically.
-      
-        #self.transport.close()
-
-    def connection_lost(self, exc):
-        # The socket has been closed
-        self.on_con_lost.set_result(True)
+    # initalize default used port
+    def __init__(self):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.bind((client1Class.TCP_IP, client1Class.TCP_PORT))
+        self.sock.listen(1)
+        self.conn, self.addr = self.sock.accept()       # the accept funtion returns 2 values, which get assigned to variable
+        print("---- Client 1 active - waiting for connections ----\n")
 
 
-async def main():
-    # Get a reference to the event loop as we plan to use
-    # low-level APIs.
-    loop = asyncio.get_running_loop()
+    def main(self):
+        try:
+            print('Connection from: client-1 ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-2: ', self.addr[0])      # instead of "self.addr" I could just use TCP_IP
+            self.receiveCli1()
+            self.sendCli1()
+            self.receiveCli1()
+        except ConnectionResetError as e:
+            print("Client-2 closed the window\n", "OS-Error:", e, "\nApplication restarted")
+            self.__init__()
+            self.main()
 
-    # Create a pair of connected sockets
-    wsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #print(rsock)
-    print(wsock)
 
-    # Register the socket to wait for data.
-    transport, protocol = await loop.create_connection(
-        lambda: MyProtocol(loop), sock=wsock)
-   
-    print("useless var", transport)
-    # Simulate the reception of data from the network.
-    loop.call_soon(wsock.send, 'abc'.encode())
+    def receiveCli1(self):
 
-    try:
-        await protocol.on_con_lost
-    finally:
-        print("FINALLY")
-        #transport.close()
-        #wsock.close()
+        while True:
+            fullClient2Msg = ''
+            newClient2Msg = True
 
-asyncio.run(main())
+            while True:
+                msg = self.conn.recv(16)
+
+                if newClient2Msg == True:        # the if part will be passed just once to figure out how long the msg will be, because newClientRespond is going to be set to false
+                    print(f"First 10 characters of Client-2's message: {msg[:client1Class.HEADERSIZE]}")       # printing out the first 10 characters (Headersize) of the message
+                    msgLen = int(msg[:client1Class.HEADERSIZE])      # append everything of the first 10 characters (Headersize) to 'msgLen'. In our case it is always just the number of the length and blanks nothing else, so e.g.: 22
+                    newClient2Msg = False
+                
+                fullClient2Msg += msg.decode("utf-8")        # decode the chunks of the received msg by given transformation format and append 16 characters each turn of the while loop to the full msg variable ('fullClient2Msg')
+
+                if len(fullClient2Msg)-client1Class.HEADERSIZE == msgLen:     # this part is only going to be passed if the (length of 'fullClient2Msg' (1.round=16, 2.round=32 (next 16 'or less'))) - ('Headersize' (10 characters)) equals the determined ('msgLen' (22))
+                    print("Client-2's message received: ", fullClient2Msg[client1Class.HEADERSIZE:])        # if this is true full message is received. Printing everything out continuing after the 10 characters (Headersize)
+                    break
+            break
+
+
+    def sendCli1(self):
+
+        while True:
+            msg = "Welcome from CLIENT-1!"
+            msg = f"{len(msg):<{client1Class.HEADERSIZE}}" + msg
+            self.conn.send(bytes(msg, "utf-8"))
+            break
+
+
+
+client1Object = client1Class()
+client1Object.main()
+
 
 
 
@@ -76,31 +98,32 @@ asyncio.run(main())
 
 '''
 import asyncio
-import socket
 
-async def wait_for_data():
-    # Get a reference to the current event loop because
-    # we want to access low-level APIs.
-    loop = asyncio.get_running_loop()
 
-    # Create a pair of connected sockets.
-    rsock, wsock = socket.socketpair()
+class how:
 
-    # Register the open socket to wait for data.
-    reader, writer = await asyncio.open_connection(sock=rsock)
+    def __init__(self):
+        print("BOOOOM")
 
-    # Simulate the reception of data from the network
-    loop.call_soon(wsock.send, 'abc'.encode())
+    async def snmp(self):
+        print("Doing the snmp thing")
+        await asyncio.sleep(1)
 
-    # Wait for data
-    data = await reader.read(100)
+    async def proxy(self):
+        print("Doing the proxy thing")
+        await asyncio.sleep(2)
 
-    # Got data, we are done: close the socket
-    print("Received:", data.decode())
-    writer.close()
+    async def main(self):
+        while True:
+            await self.snmp()
+            await self.proxy()
 
-    # Close the second socket
-    wsock.close()
+    def crazt(self):
+        loop = asyncio.get_event_loop()
+        asyncio.ensure_future(self.main()) # However if you need to create task from arbitrary awaitable, you should use asyncio.ensure_future(obj) vs. loop.create_task(self.main())
+        loop.run_forever()
 
-asyncio.run(wait_for_data())
+
+howOb = how()
+howOb.crazt()
 '''

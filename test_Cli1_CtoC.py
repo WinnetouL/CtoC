@@ -4,6 +4,130 @@ import socket
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+TCP_IP = socket.gethostbyname(socket.gethostname())
+TCP_PORT = 1234
+HEADERSIZE = 10
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind((TCP_IP, TCP_PORT))
+sock.listen(1)
+conn, addr = sock.accept()
+print(addr)       # the accept funtion returns 2 values, which get assigned to variable
+print("---- Client 1 active - waiting for connections ----\n")
+ 
+
+async def main():
+    try:
+        print('Connection from: client-1 ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-2: ', addr[0])      # instead of "self.addr" I could just use TCP_IP
+        
+        task0 = asyncio.create_task(receiveCli1())
+        task1 = asyncio.create_task(sendCli1())
+
+        await task0
+        await task1
+        
+    except ConnectionResetError as e:
+        print("Client-2 closed the window\n", "OS-Error:", e, "\nApplication restarted")
+        time.sleep(2)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind((TCP_IP, TCP_PORT))
+        sock.listen(1)
+        print("---- Client 1 active - waiting for connections ----\n")
+        main()
+    conn, addr = sock.accept()       # the accept funtion returns 2 values, which get assigned to variable
+
+
+async def receiveCli1():
+
+    while True:
+        fullClient2Msg = ''
+        newClient2Msg = True
+
+        while True:
+            msg = conn.recv(16)
+
+            if newClient2Msg == True:        # the if part will be passed just once to figure out how long the msg will be, because newClientRespond is going to be set to false
+                print(f"First 10 characters of Client-2's message: {msg[:HEADERSIZE]}")       # printing out the first 10 characters (Headersize) of the message
+                msgLen = int(msg[:HEADERSIZE])      # append everything of the first 10 characters (Headersize) to 'msgLen'. In our case it is always just the number of the length and blanks nothing else, so e.g.: 22
+                newClient2Msg = False
+
+            fullClient2Msg += msg.decode("utf-8")        # decode the chunks of the received msg by given transformation format and append 16 characters each turn of the while loop to the full msg variable ('fullClient2Msg')
+
+            if len(fullClient2Msg)-HEADERSIZE == msgLen:     # this part is only going to be passed if the (length of 'fullClient2Msg' (1.round=16, 2.round=32 (next 16 'or less'))) - ('Headersize' (10 characters)) equals the determined ('msgLen' (22))
+                print("Client-2's message received: ", fullClient2Msg[HEADERSIZE:])        # if this is true full message is received. Printing everything out continuing after the 10 characters (Headersize)
+                break
+        break
+
+
+async def sendCli1():
+
+    while True:
+        msg = "Welcome from CLIENT-1!"
+        msg = f"{len(msg):<{HEADERSIZE}}" + msg
+        conn.send(bytes(msg, "utf-8"))
+        break
+
+while True:
+    asyncio.run(main())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
 class client1Class:
     # class variabels:
     TCP_IP = socket.gethostbyname(socket.gethostname())
@@ -18,7 +142,7 @@ class client1Class:
         self.sock.listen(1)
         self.conn, self.addr = self.sock.accept()       # the accept funtion returns 2 values, which get assigned to variable
         print("---- Client 1 active - waiting for connections ----\n")
-        asyncio.run(main())
+        asyncio.run(self.main())
 
     async def main(self):
         try:
@@ -74,10 +198,7 @@ client1Object.main()
 
 
 
-
-
-
-
+'''
 
 
 
