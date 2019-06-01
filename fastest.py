@@ -12,15 +12,15 @@ class test:
             time.sleep(1)
 
     def fun(self):
-        while True:
+        # while True:
             print("fun2")
             time.sleep(2)
 
     def main(self):
         t0 = threading.Thread(target = self.run)
         t1 = threading.Thread(target = self.fun)
-        # t0.daemon = True
-        # t1.daemon = True
+        t0.daemon = True
+        t1.daemon = True
         t0.start()
         t1.start()
 
