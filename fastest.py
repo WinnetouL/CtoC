@@ -1,32 +1,98 @@
-import asyncio
+# https://docs.python.org/3/library/threading.html#threading.Thread.join
+
+import threading
+import time
 
 
-class how:
+class ThreadingExample(object):
+    """ Threading example class
+    The run() method will be started and it will run in the background
+    until the application exits.
+    """
 
-    def __init__(self):
-        print("BOOOOM")
+    def __init__(self, interval=1):
+        """ Constructor
+        :type interval: int
+        :param interval: Check interval, in seconds
+        """
+        self.interval = interval
 
-    async def snmp(self):
-        print("Doing the snmp thing")
-        await asyncio.sleep(1)
+        thread = threading.Thread(target=self.run, args=())
+        print("aaa")
+        thread.daemon = True                            # Daemonize thread
+        thread.start()                                  # Start the execution
 
-    async def proxy(self):
-        print("Doing the proxy thing")
-        await asyncio.sleep(2)
-
-    async def main(self):
+    def run(self):
+        """ Method that runs forever """
         while True:
-            await self.snmp()
-            await self.proxy()
+            # Do something
+            print('Doing something imporant in the background')
 
-    def crazt(self):
-        loop = asyncio.get_event_loop()
-        asyncio.ensure_future(self.main()) # However if you need to create task from arbitrary awaitable, you should use asyncio.ensure_future(obj) vs. loop.create_task(self.main())
-        loop.run_forever()
+            time.sleep(self.interval)
+
+example = ThreadingExample()
+time.sleep(3)
+print('Checkpoint')
+while True:
+    time.sleep(2)
+    print('Bye')
+        # a = threading.active_count()
+        # b = threading.enumerate()
+        # print(a)
+        # print(b)
+
+# if __name__ == "__main__":
 
 
-howOb = how()
-howOb.crazt()
+
+
+
+
+
+
+
+
+
+# join()?
+# lock?
+
+
+
+
+
+
+
+# f = open("asyncio.txt", "w+")
+
+
+# def func2(lul):
+#     while True:
+#         print('Echo', lul)
+#         time.sleep(3)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -41,71 +107,37 @@ howOb.crazt()
 
 
 '''
-class how:
+from time import sleep
+import multiprocessing
+import io
 
-    async def test(self):
-        print("\nnever scheduled\n\n\n")
-
-    async def main(self):
-        await self.test()
-
-    def crazt(self):
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.main())
-        # asyncio.run(self.main())
+f = open("asyncio.txt", "w+")
 
 
-howOb = how()
-howOb.crazt()
+def blocking(to):
+    print("ECHO:", to)
+    # while True:
+    #     
+    #     print("ECHO: ", a)
 
 
+def writingToFile():
+    while True:
+        f.write("This is Spandau\n")
+        sleep(1)
 
 
-import asyncio
+def main():
+    p2 = multiprocessing.Process(target = writingToFile)
+    p2.start()
+    while True:
+        a = input("something? ")
+        p1 = multiprocessing.Process(target = blocking(a))
+        p1.start()
 
 
-class how:
+if __name__ == '__main__':
+    main()
+    print('last line')
 
-    async def myWorker(self):
-        print("Hello World")
-
-    async def main(self):
-        print("My Main")
-
-    def crazt(self):
-        try:
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(asyncio.gather(*[self.myWorker() for i in range(5)]))
-        except KeyboardInterrupt:
-            pass
-        finally:
-            loop.close()
-
-howOb = how()
-howOb.crazt()
-
-
-
-
-class how:
-    def __init__(self):
-        print("1_MINI")
-    
-    
-    def called(self):
-        print("3_I got called")
-
-    async def test():
-        print("\nnever scheduled\n\n\n")
-
-    async def mains():
-        await test()
-    
-    def main(self):
-        print("2_lets call a func")
-        self.called()
-
-howObject = how()
-howObject.main()
-asyncio.run(howObject.mains())
 '''

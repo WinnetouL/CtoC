@@ -5,7 +5,6 @@
 # prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and quitting
 
 import socket
-import asyncio
 
 
 
@@ -23,20 +22,19 @@ class client2Class:
         print("---- Client 2 active ----\n")
 
 
-    async def main(self):
-        
+    def main(self):
         try:
             print('Connection from client-2: ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-1: ', client2Class.TCP_IP)
             msg = "Welcome from CLIENT-2!"
-            await self.sendCli2(msg)
-            await self.recvCli2()
+            self.sendCli2(msg)
+            self.recvCli2()
             msg = input("Second msg to client-1?: ")
-            # await self.sendCli2(msg)
+            self.sendCli2(msg)
         except ConnectionResetError as e:
             print("Client-1 closed the window\n", "OS-Error:", e, "\nApplication quitted")
 
 
-    async def sendCli2(self, msg):
+    def sendCli2(self, msg):
 
         while True:
             msg = f"{len(msg):<{client2Class.HEADERSIZE}}" + msg     # rebuild msg: counting length of msg and append the length number in front of the msg within the defined headersize
@@ -44,7 +42,7 @@ class client2Class:
             break
 
 
-    async def recvCli2(self):
+    def recvCli2(self):
 
         while True:
             fullClient1Msg = ''
@@ -66,70 +64,12 @@ class client2Class:
             break
 
 
-    def mainTest(self): # ship into __init__()?
-        loop = asyncio.get_event_loop()
-        asyncio.ensure_future(self.main())
-        # loop.run_forever()
-        loop.run_until_complete(self.main())
-        loop.close()
-
 
 client2Object = client2Class()
-client2Object.mainTest()
+client2Object.main()
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
-import asyncio
-
-
-class how:
-
-    def __init__(self):
-        print("BOOOOM")
-
-    async def snmp(self):
-        print("Doing the snmp thing")
-        await asyncio.sleep(1)
-
-    async def proxy(self):
-        print("Doing the proxy thing")
-        await asyncio.sleep(2)
-
-    async def main(self):
-        while True:
-            await self.snmp()
-            await self.proxy()
-
-    def crazt(self):
-        loop = asyncio.get_event_loop()
-        asyncio.ensure_future(self.main()) # However if you need to create task from arbitrary awaitable, you should use asyncio.ensure_future(obj) vs. loop.create_task(self.main())
-        loop.run_forever()
-
-
-howOb = how()
-howOb.crazt()
-'''
+# self.s.close()???
+# later: getsockname() and getpeername()
