@@ -6,6 +6,7 @@
 # some tweaking for the userside
 
 import socket
+import threading
 
 
 
@@ -28,9 +29,12 @@ class client1Class:
     def main(self):
         try:
             print('Connection from: client-1 ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-2: ', self.addr[0])      # instead of "self.addr" I could just use TCP_IP
-            self.receiveCli1()
-            self.sendCli1()
-            self.receiveCli1()
+            t0 = threading.Thread(target = self.receiveCli1)
+            t1 = threading.Thread(target = self.sendCli1)
+            t0.start()
+            t1.start()
+            t0.join()
+            t1.join()
         except ConnectionResetError as e:
             print("Client-2 closed the window\n", "OS-Error:", e, "\nApplication restarted")
             self.__init__()

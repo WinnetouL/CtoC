@@ -4,38 +4,62 @@ import threading
 import time
 
 
-class ThreadingExample(object):
-    """ Threading example class
-    The run() method will be started and it will run in the background
-    until the application exits.
-    """
 
-    def __init__(self, interval=1):
-        """ Constructor
-        :type interval: int
-        :param interval: Check interval, in seconds
-        """
-        self.interval = interval
+def run():
+    while True:
+        print('run')
+        time.sleep(1)
 
-        thread = threading.Thread(target=self.run, args=())
-        print("aaa")
-        thread.daemon = True                            # Daemonize thread
-        thread.start()                                  # Start the execution
+def fun():
+    while True:
+        print("fun2")
+        time.sleep(2)
 
-    def run(self):
-        """ Method that runs forever """
-        while True:
-            # Do something
-            print('Doing something imporant in the background')
+t0 = threading.Thread(target = run)
+t1 = threading.Thread(target = fun)
+t0.start()
+t1.start()
+t0.join()
+t1.join()
 
-            time.sleep(self.interval)
 
-example = ThreadingExample()
-time.sleep(3)
-print('Checkpoint')
-while True:
-    time.sleep(2)
-    print('Bye')
+
+
+
+
+
+# class ThreadingExample(object):
+#     """ Threading example class
+#     The run() method will be started and it will run in the background
+#     until the application exits.
+#     """
+
+#     def __init__(self, interval=1):
+#         """ Constructor
+#         :type interval: int
+#         :param interval: Check interval, in seconds
+#         """
+#         self.interval = interval
+
+#         thread = threading.Thread(target=self.run, args=())
+#         print("aaa")
+#         thread.daemon = True                            # Daemonize thread
+#         thread.start()                                  # Start the execution
+
+#     def run(self):
+#         """ Method that runs forever """
+#         while True:
+#             # Do something
+#             print('Doing something imporant in the background')
+
+#             time.sleep(self.interval)
+
+# example = ThreadingExample()
+# time.sleep(3)
+# print('Checkpoint')
+# while True:
+#     time.sleep(2)
+#     print('Bye')
         # a = threading.active_count()
         # b = threading.enumerate()
         # print(a)
