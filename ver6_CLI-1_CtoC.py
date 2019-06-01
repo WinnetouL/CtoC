@@ -33,8 +33,6 @@ class client1Class:
             t1 = threading.Thread(target = self.sendCli1)
             t0.start()
             t1.start()
-            t0.join()
-            t1.join()
         except ConnectionResetError as e:
             print("Client-2 closed the window\n", "OS-Error:", e, "\nApplication restarted")
             self.__init__()
@@ -60,7 +58,6 @@ class client1Class:
                 if len(fullClient2Msg)-client1Class.HEADERSIZE == msgLen:     # this part is only going to be passed if the (length of 'fullClient2Msg' (1.round=16, 2.round=32 (next 16 'or less'))) - ('Headersize' (10 characters)) equals the determined ('msgLen' (22))
                     print("Client-2's message received: ", fullClient2Msg[client1Class.HEADERSIZE:])        # if this is true full message is received. Printing everything out continuing after the 10 characters (Headersize)
                     break
-            break
 
 
     def sendCli1(self):
@@ -69,7 +66,6 @@ class client1Class:
             msg = "Welcome from CLIENT-1!"
             msg = f"{len(msg):<{client1Class.HEADERSIZE}}" + msg
             self.conn.send(bytes(msg, "utf-8"))
-            break
 
 
 
