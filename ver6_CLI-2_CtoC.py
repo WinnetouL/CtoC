@@ -37,16 +37,12 @@ class client2Class:
 
 
     def sendCli2(self):
-        # print('this is MSGGGGGGGGGGG', msg)
         msg = input("Second msg to client-1?: ")
-        while True:
-            msg = f"{len(msg):<{client2Class.HEADERSIZE}}" + msg     # rebuild msg: counting length of msg and append the length number in front of the msg within the defined headersize
-            self.sock.send(bytes(msg, "utf-8"))     # send msg in given transformation format
+        msg = f"{len(msg):<{client2Class.HEADERSIZE}}" + msg     # rebuild msg: counting length of msg and append the length number in front of the msg within the defined headersize
+        self.sock.send(bytes(msg, "utf-8"))     # send msg in given transformation format
 
 
     def recvCli2(self):
-
-        while True:
             fullClient1Msg = ''
             newClient1Msg = True
 
