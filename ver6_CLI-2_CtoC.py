@@ -7,6 +7,8 @@
 import socket
 import threading
 
+import time
+import sys
 
 class client2Class:
     # class variabels:
@@ -28,8 +30,24 @@ class client2Class:
             # msg = "Welcome from CLIENT-2!"
             t0 = threading.Thread(target = self.sendCli2())
             t1 = threading.Thread(target = self.recvCli2())
+            t0.daemon = True        # mark these functiones as daemon threads, which are parts of the main thread (main > daemon).
+            t1.daemon = True        # This enables the possibility to stop the main thread with cmd + c and the other threads will stop as well, because they are daemons. Otherwise the started threads would continuously run.
             t0.start()
             t1.start()
+
+            a = threading.active_count()
+            print(a)
+            while True:
+                if a != 1:
+                    a = threading.active_count()
+                    # b = threading.enumerate()
+                    print("nr",a)
+                    # print(b)
+                    time.sleep(2)
+                else:
+                    print("shutting down")
+                    sys.exit(0)
+            
             # msg = input("Second msg to client-1?: ")
             # self.sendCli2(msg)
         except ConnectionResetError as e:

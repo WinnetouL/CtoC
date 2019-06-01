@@ -4,23 +4,37 @@ import threading
 import time
 
 
+class test:
+        
+    def run(self):
+        while True:
+            print('run')
+            time.sleep(1)
 
-def run():
-    while True:
-        print('run')
-        time.sleep(1)
+    def fun(self):
+        while True:
+            print("fun2")
+            time.sleep(2)
 
-def fun():
-    while True:
-        print("fun2")
-        time.sleep(2)
+    def main(self):
+        t0 = threading.Thread(target = self.run)
+        t1 = threading.Thread(target = self.fun)
+        # t0.daemon = True
+        # t1.daemon = True
+        t0.start()
+        t1.start()
 
-t0 = threading.Thread(target = run)
-t1 = threading.Thread(target = fun)
-t0.start()
-t1.start()
-t0.join()
-t1.join()
+        while True:
+            a = threading.active_count()
+            # b = threading.enumerate()
+            print(a)
+            # print(b)
+            time.sleep(2)
+
+
+
+testOb = test()
+testOb.main()
 
 
 
