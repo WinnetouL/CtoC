@@ -1,40 +1,99 @@
-# https://docs.python.org/3/library/threading.html#threading.Thread.join
+import sys
+import threading 
+import time 
 
-import threading
-import time
+
+
 
 
 class test:
-        
-    def run(self):
-        while True:
-            print('run')
-            time.sleep(1)
+    stop_threads = False
+    def run(self): 
+        try:
+            while True:
+                testob.main.stop_threads
+                print('thread running') 
+                a = threading.active_count()
+                print("nr", a) 
+                time.sleep(1)
+                # input("w")
+                testob.stop_threads = True
+                print("this,", testob.stop_threads)
+        except KeyboardInterrupt as e:
+            print("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
 
-    def fun(self):
-        # while True:
-            print("fun2")
-            time.sleep(2)
+    def main(self): 
+            testob.stop_threads = False
+            t1 = threading.Thread(target = self.run) 
+            t1.daemon = True
+            t1.start()
 
-    def main(self):
-        t0 = threading.Thread(target = self.run)
-        t1 = threading.Thread(target = self.fun)
-        t0.daemon = True
-        t1.daemon = True
-        t0.start()
-        t1.start()
+            while True:
+                if testob.stop_threads == True:
+                    # time.sleep(5)
+                    testob.stop_threads = True
+                    print("Done")
+                    sys.exit(0)
+                elif testob.stop_threads == False:
+                    print("ey nobody can tell me nothing")
+                    print(testob.stop_threads)
+                    time.sleep(1)
 
-        while True:
+            # time.sleep(1) 
+            # t1.join() 
+            # print('thread killed') 
+
+testob = test()
+testob.main() 
+
+
+
+
+'''
+import sys
+import threading
+import time
+def do_something_with_exception():
+    # exc_type, exc_value = sys.exc_info()[:2]
+    #print("HHHHHHHHHHHHHHHHHHHHHHHandling {} exception with message '{}' in {}").format(exc_type.__name__, exc_value, threading.current_thread().name)
+    print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+
+def cause_exception(delay):
+    print("started")
+    time.sleep(delay)
+    # raise RuntimeError('This is the error message')
+    print("finished")
+    main(False)
+    # q = False
+    # return q
+
+def main(q):
+
+            
+    t1 = threading.Thread(target= cause_exception, args=(3, ))
+    t2 = threading.Thread(target= cause_exception, args=(1, ))
+    t1.daemon = True
+    t2.daemon = True
+    t1.start()
+    t2.start()
+    
+    while True:
+        if q == False:
+            print("q = False, so bye!")
             a = threading.active_count()
-            # b = threading.enumerate()
+            print("alive", a)
+            sys.exit(0)
+        else:
+            a = threading.active_count()
             print(a)
-            # print(b)
-            time.sleep(2)
+            time.sleep(1)
+            break
+    # q = True
 
 
 
-testOb = test()
-testOb.main()
+main(True)
+'''
 
 
 
@@ -42,72 +101,58 @@ testOb.main()
 
 
 
-# class ThreadingExample(object):
-#     """ Threading example class
-#     The run() method will be started and it will run in the background
-#     until the application exits.
-#     """
 
-#     def __init__(self, interval=1):
-#         """ Constructor
-#         :type interval: int
-#         :param interval: Check interval, in seconds
-#         """
-#         self.interval = interval
 
-#         thread = threading.Thread(target=self.run, args=())
-#         print("aaa")
-#         thread.daemon = True                            # Daemonize thread
-#         thread.start()                                  # Start the execution
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import threading
+# import time
+
+
+# class test:
+        
 #     def run(self):
-#         """ Method that runs forever """
 #         while True:
-#             # Do something
-#             print('Doing something imporant in the background')
+#             print('run')
+#             time.sleep(1)
 
-#             time.sleep(self.interval)
+#     def fun(self):
+#         # while True:
+#             print("fun2")
+#             time.sleep(2)
 
-# example = ThreadingExample()
-# time.sleep(3)
-# print('Checkpoint')
-# while True:
-#     time.sleep(2)
-#     print('Bye')
-        # a = threading.active_count()
-        # b = threading.enumerate()
-        # print(a)
-        # print(b)
+#     def main(self):
+#         t0 = threading.Thread(target = self.run)
+#         t1 = threading.Thread(target = self.fun)
+#         t0.daemon = True
+#         t1.daemon = True
+#         t0.start()
+#         t1.start()
+#         threading.Thread._exc_info
 
-# if __name__ == "__main__":
-
-
-
-
-
-
-
-
+#         while True:
+#             a = threading.active_count()
+#             # b = threading.enumerate()
+#             print(a)
+#             # print(b)
+#             time.sleep(2)
 
 
 
-# join()?
-# lock?
-
-
-
-
-
-
-
-# f = open("asyncio.txt", "w+")
-
-
-# def func2(lul):
-#     while True:
-#         print('Echo', lul)
-#         time.sleep(3)
-
+# testOb = test()
+# testOb.main()
 
 
 
@@ -145,37 +190,32 @@ testOb.main()
 
 
 '''
-from time import sleep
-import multiprocessing
-import io
+import sys
+import threading
+import time
 
-f = open("asyncio.txt", "w+")
+def do_something_with_exception():
+    # exc_type, exc_value = sys.exc_info()[:2]
+    #print("HHHHHHHHHHHHHHHHHHHHHHHandling {} exception with message '{}' in {}").format(exc_type.__name__, exc_value, threading.current_thread().name)
+    print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
 
+def cause_exception(delay):
+    time.sleep(delay)
+    raise RuntimeError('This is the error message')
+    # print("namoin")
 
-def blocking(to):
-    print("ECHO:", to)
-    # while True:
-    #     
-    #     print("ECHO: ", a)
+def thread_target(delay):
+    try:
+        cause_exception(delay)
+    except:
+        do_something_with_exception()
 
+threads = [threading.Thread(target=thread_target, args=(0.3,)), threading.Thread(target=thread_target, args=(0.1,)),]
 
-def writingToFile():
-    while True:
-        f.write("This is Spandau\n")
-        sleep(1)
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
 
-
-def main():
-    p2 = multiprocessing.Process(target = writingToFile)
-    p2.start()
-    while True:
-        a = input("something? ")
-        p1 = multiprocessing.Process(target = blocking(a))
-        p1.start()
-
-
-if __name__ == '__main__':
-    main()
-    print('last line')
 
 '''
