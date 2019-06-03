@@ -7,11 +7,14 @@ import time
 
 
 class test:
+
     stop_threads = False
+        
+
     def run(self): 
+        
         try:
             while True:
-                testob.main.stop_threads
                 print('thread running') 
                 a = threading.active_count()
                 print("nr", a) 
@@ -45,6 +48,8 @@ class test:
 
 testob = test()
 testob.main() 
+
+
 
 
 

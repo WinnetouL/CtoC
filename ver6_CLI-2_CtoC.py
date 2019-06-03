@@ -16,6 +16,7 @@ class client2Class:
 #    TCP_IP = '192.168.2.134'
     TCP_PORT = 1234
     HEADERSIZE = 10
+    stopThreads = False
 
     # connect to the default port
     def __init__(self):
@@ -37,16 +38,17 @@ class client2Class:
             a = threading.active_count()
             print(a)
             while True:
-                if a != 1:
+                print("THIS", client2Object.stopThreads)
+                if a != 3:
+                    print("nr", a)
+                    print("shutting down")
+                    sys.exit(0)
+                else:
                     a = threading.active_count()
                     # b = threading.enumerate()
                     print("nr", a)
                     # print(b)
                     time.sleep(8)
-                else:
-                    print("shutting down")
-                    sys.exit(0)
-            
             # msg = input("Second msg to client-1?: ")
             # self.sendCli2(msg)
 
@@ -80,9 +82,8 @@ class client2Class:
 
         except ConnectionResetError as e:
             print("Client-1 closed the window\n", "OS-Error:", e, "\nApplication quitted")
-            print("bye")
-            sys.exit(0)
-            print("byebyebye")
+            client2Object.stopThreads = True
+            
             
 
 
