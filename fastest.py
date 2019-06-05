@@ -11,10 +11,10 @@ class test:
         print("moin")
         t0 = threading.Thread(target = self.first)
         t1 = threading.Thread(target = self.second)
-        t0.daemon = True
-        t1.daemon = True
-        t0.start()
-        t1.start()
+        # t0.daemon = True
+        # t1.daemon = True
+        # t0.start()
+        # t1.start()
 
         while True:
             a = threading.enumerate()
