@@ -1,192 +1,66 @@
 import sys
-import threading 
-import time 
-
-
+import time
+import threading
+import _thread
 
 
 
 class test:
 
-    stop_threads = False
-        
+    def main(self):
+        print("moin")
+        t0 = threading.Thread(target = self.first)
+        t1 = threading.Thread(target = self.second)
+        t0.daemon = True
+        t1.daemon = True
+        t0.start()
+        t1.start()
 
-    def run(self): 
-        
-        try:
-            while True:
-                print('thread running') 
-                a = threading.active_count()
-                print("nr", a) 
-                time.sleep(1)
-                # input("w")
-                testob.stop_threads = True
-                print("this,", testob.stop_threads)
-        except KeyboardInterrupt as e:
-            print("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
-
-    def main(self): 
-            testob.stop_threads = False
-            t1 = threading.Thread(target = self.run) 
-            t1.daemon = True
-            t1.start()
-
-            while True:
-                if testob.stop_threads == True:
-                    # time.sleep(5)
-                    testob.stop_threads = True
-                    print("Done")
-                    sys.exit(0)
-                elif testob.stop_threads == False:
-                    print("ey nobody can tell me nothing")
-                    print(testob.stop_threads)
-                    time.sleep(1)
-
-            # time.sleep(1) 
-            # t1.join() 
-            # print('thread killed') 
-
-testob = test()
-testob.main() 
-
-
-
-
-
-
-'''
-import sys
-import threading
-import time
-def do_something_with_exception():
-    # exc_type, exc_value = sys.exc_info()[:2]
-    #print("HHHHHHHHHHHHHHHHHHHHHHHandling {} exception with message '{}' in {}").format(exc_type.__name__, exc_value, threading.current_thread().name)
-    print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-
-def cause_exception(delay):
-    print("started")
-    time.sleep(delay)
-    # raise RuntimeError('This is the error message')
-    print("finished")
-    main(False)
-    # q = False
-    # return q
-
-def main(q):
-
-            
-    t1 = threading.Thread(target= cause_exception, args=(3, ))
-    t2 = threading.Thread(target= cause_exception, args=(1, ))
-    t1.daemon = True
-    t2.daemon = True
-    t1.start()
-    t2.start()
-    
-    while True:
-        if q == False:
-            print("q = False, so bye!")
-            a = threading.active_count()
-            print("alive", a)
-            sys.exit(0)
-        else:
-            a = threading.active_count()
-            print(a)
+        while True:
+            a = threading.enumerate()
+            b = threading.active_count()
+            print("which: ", a)
+            print("amount: ", b)
+            print("t0 alive ", t0.is_alive())
+            print("t1 alive ", t1.is_alive())
+            # # print("t0 alive ", MainThread.is_alive)
             time.sleep(1)
-            break
-    # q = True
+            # print("tag")
+            if t0.is_alive() == False:
+                print("whileLoop t0 alive ", t0.is_alive())
+                # time.sleep(5)
+                t0 = threading.Thread(target = self.first)
+                t0.daemon = True
+                t0.start()
+
+            elif t1.is_alive() == False:
+                print("WWWWWWWWWWWWWWWWWWwhileLoop t1 alive ", t1.is_alive())
+                t1 = threading.Thread(target = self.second)
+                t1.daemon = True
+                t1.start()
+            else:
+                pass
+
+
+    def first(self):
+        # while True:
+        print("first running\n")
+        time.sleep(5)
+        print("first bye")
+        # _thread.exit()
+        # threading._thread.exit_thread()
+        sys.exit(0)
+
+
+    def second(self):
+        while True:
+            print("second running\n")
+            time.sleep(5)
 
 
 
-main(True)
-'''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# import threading
-# import time
-
-
-# class test:
-        
-#     def run(self):
-#         while True:
-#             print('run')
-#             time.sleep(1)
-
-#     def fun(self):
-#         # while True:
-#             print("fun2")
-#             time.sleep(2)
-
-#     def main(self):
-#         t0 = threading.Thread(target = self.run)
-#         t1 = threading.Thread(target = self.fun)
-#         t0.daemon = True
-#         t1.daemon = True
-#         t0.start()
-#         t1.start()
-#         threading.Thread._exc_info
-
-#         while True:
-#             a = threading.active_count()
-#             # b = threading.enumerate()
-#             print(a)
-#             # print(b)
-#             time.sleep(2)
-
-
-
-# testOb = test()
-# testOb.main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+testOb = test()
+testOb.main()
 
 
 
@@ -196,31 +70,139 @@ main(True)
 
 '''
 import sys
-import threading
 import time
-
-def do_something_with_exception():
-    # exc_type, exc_value = sys.exc_info()[:2]
-    #print("HHHHHHHHHHHHHHHHHHHHHHHandling {} exception with message '{}' in {}").format(exc_type.__name__, exc_value, threading.current_thread().name)
-    print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
-
-def cause_exception(delay):
-    time.sleep(delay)
-    raise RuntimeError('This is the error message')
-    # print("namoin")
-
-def thread_target(delay):
-    try:
-        cause_exception(delay)
-    except:
-        do_something_with_exception()
-
-threads = [threading.Thread(target=thread_target, args=(0.3,)), threading.Thread(target=thread_target, args=(0.1,)),]
-
-for t in threads:
-    t.start()
-for t in threads:
-    t.join()
+import threading
 
 
+class test:
+
+    def main(self):
+        t0 = threading.Thread(target = self.first)
+        t1 = threading.Thread(target = self.second)
+
+        while True:
+
+            if t0.is_alive() == False:
+                print("whileLoop t0 alive ", t0.is_alive())
+                time.sleep(5)
+                t0.daemon = True
+                t0.start()
+
+            elif t1.is_alive() == False:
+                print("whileLoop t1 alive ", t1.is_alive())
+                t1.daemon = True
+                t1.start()
+
+            else:
+                a = threading.enumerate()
+                b = threading.active_count()
+                print("which: ", a)
+                print("amount: ", b)
+                print("t0 alive ", t0.is_alive())
+                print("t1 alive ", t1.is_alive())
+                # print("t0 alive ", MainThread.is_alive)
+                time.sleep(1)
+
+
+    def first(self):
+        # while True:
+        print("first running\n")
+        time.sleep(5)
+        print("first bye\n")
+            # sys.exit(0)
+
+
+    def second(self):
+        while True:
+            print("second running\n")
+            time.sleep(5)
+
+
+
+testOb = test()
+testOb.main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import sys
+import time
+import threading
+
+
+class test:
+
+    def main(self):
+        t0 = threading.Thread(target = self.first)
+        t1 = threading.Thread(target = self.second)
+
+
+        b = threading.active_count()
+
+        while True:
+
+            if t0.is_alive() == False:
+                print("whileLoop t0 alive ", t0.is_alive())
+                t0.daemon = True
+                t0.start()
+
+            elif t1.is_alive() == False:
+                print("whileLoop t1 alive ", t1.is_alive())
+                t1.daemon = True
+                t1.start()
+
+            else:
+                a = threading.enumerate()
+                b = threading.active_count()
+                print("which: ", a)
+                print("amount: ", b)
+                print("t0 alive ", t0.is_alive())
+                print("t1 alive ", t1.is_alive())
+                # print("t0 alive ", MainThread.is_alive)
+                time.sleep(1)
+
+
+    def first(self):
+        while True:
+            print("first running\n")
+            time.sleep(5)
+            print("first running\n")
+            sys.exit(0)
+
+
+    def second(self):
+        while True:
+            print("second running\n")
+            time.sleep(5)
+
+
+
+testOb = test()
+testOb.main()
 '''
