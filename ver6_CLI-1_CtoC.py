@@ -71,7 +71,7 @@ class client1Class:
 
     def sendCli1(self):
         while True:
-            msg = input("Second msg to client-1?: ")
+            msg = input("Second msg to client-2?: ")
             msg = f"{len(msg):<{client1Class.HEADERSIZE}}" + msg
             self.conn.send(bytes(msg, "utf-8"))
 
