@@ -1,7 +1,6 @@
 # dynamic chatting
-# within defined functions
+# all within defined functions / classes (modular structure)
 # just one socket in use
-# modular structure
 # prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and restarting
 
 import sys
