@@ -18,3 +18,8 @@ Every version provides a new functionality along following items:
 - prevent application from crashing due an expected 'ConnectionResetError' (connection handling) in both directions
 
 Version 6 is my final prototype atm.
+
+#### Main sources:
+- https://www.youtube.com/watch?v=Lbfe3-v7yE0
+- https://docs.python.org/3/library/threading.html
+- https://docs.python.org/3/library/socket.html
