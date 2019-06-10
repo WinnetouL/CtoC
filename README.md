@@ -17,7 +17,7 @@ Every version provides a new functionality along following items:
 - "dynamic" chatting
 - prevent application from crashing due an expected 'ConnectionResetError' (connection handling) in both directions
 
-Version 6 is my final prototype atm.
+Version 6 is my final prototype atm. In another repository server and client side will be separate.
 
 #### Main sources:
 - https://www.youtube.com/watch?v=Lbfe3-v7yE0
