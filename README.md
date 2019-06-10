@@ -2,11 +2,11 @@
 
 #### Environment:
 - python 3.7.3
-- Windows (probably works for macOS as well)
+- windows (probably works for macOS as well)
 
 
 #### How-to:
-1. Always run client 1 before you start client 2
+1. always run client 1 before you start client 2
 
 
 #### Description:
