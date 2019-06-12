@@ -34,7 +34,7 @@ class test:
                 t0.start()
 
             elif t1.is_alive() == False:
-                print("WWWWWWWWWWWWWWWWwhileLoop t1 alive ", t1.is_alive())
+                print("WWWWWWWWWWWWWWWwhileLoop t1 alive ", t1.is_alive())
                 t1 = threading.Thread(target = self.second)
                 t1.daemon = True
                 t1.start()
