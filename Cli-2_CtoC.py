@@ -1,7 +1,6 @@
 # dynamic chatting
-# within defined functions
+# all within defined functions / classes (modular structure)
 # just one socket in use
-# modular structure
 # prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and quitting
 
 import sys
@@ -14,7 +13,7 @@ import threading
 class client2Class:
     # class variabels:
     TCP_IP = socket.gethostbyname(socket.gethostname())
-#    TCP_IP = '192.168.2.134'
+    # TCP_IP = '192.168.2.134'
     TCP_PORT = 1234
     HEADERSIZE = 10
 
