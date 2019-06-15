@@ -8,6 +8,8 @@
 import socket
 import threading
 
+import sys
+import time
 
 
 class client1Class:
@@ -31,8 +33,24 @@ class client1Class:
             print('Connection from: client-1 ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-2: ', self.addr[0])      # instead of "self.addr" I could just use TCP_IP
             t0 = threading.Thread(target = self.receiveCli1)
             t1 = threading.Thread(target = self.sendCli1)
+            t0.daemon = True        # mark these functiones as daemon threads, which are parts of the main thread (main > daemon).
+            t1.daemon = True        # This enables the possibility to stop the main thread with cmd + c and the other threads will stop as well, because they are daemons. Otherwise the started threads would continuously run.
             t0.start()
             t1.start()
+
+            a = threading.active_count()
+            print(a)
+            while True:
+                if a != 1:
+                    a = threading.active_count()
+                    # b = threading.enumerate()
+                    print("nr",a)
+                    # print(b)
+                    time.sleep(2)
+                else:
+                    print("shutting down")
+                    sys.exit(0)
+
         except ConnectionResetError as e:
             print("Client-2 closed the window\n", "OS-Error:", e, "\nApplication restarted")
             self.__init__()
