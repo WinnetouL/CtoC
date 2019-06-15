@@ -6,7 +6,7 @@
 # some tweaking for the userside
 
 import socket
-import asyncio
+
 
 
 class client1Class:
@@ -23,23 +23,21 @@ class client1Class:
         self.sock.listen(1)
         self.conn, self.addr = self.sock.accept()       # the accept funtion returns 2 values, which get assigned to variable
         print("---- Client 1 active - waiting for connections ----\n")
-      
 
 
-    async def main(self):
-
+    def main(self):
         try:
             print('Connection from: client-1 ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-2: ', self.addr[0])      # instead of "self.addr" I could just use TCP_IP
-            await self.receiveCli1()
-            await self.sendCli1()
-            # await self.receiveCli1()
+            self.receiveCli1()
+            self.sendCli1()
+            self.receiveCli1()
         except ConnectionResetError as e:
             print("Client-2 closed the window\n", "OS-Error:", e, "\nApplication restarted")
             self.__init__()
             self.main()
 
 
-    async def receiveCli1(self):
+    def receiveCli1(self):
 
         while True:
             fullClient2Msg = ''
@@ -61,7 +59,7 @@ class client1Class:
             break
 
 
-    async def sendCli1(self):
+    def sendCli1(self):
 
         while True:
             msg = "Welcome from CLIENT-1!"
@@ -70,60 +68,11 @@ class client1Class:
             break
 
 
-    def mainTest(self): # ship into __init__()?
-        loop = asyncio.get_event_loop()
-        asyncio.ensure_future(self.main())
-        # loop.run_forever()
-        loop.run_until_complete(self.main())
-        loop.close()
-
 
 client1Object = client1Class()
-client1Object.mainTest() # seems like it is not needed if mainTest() gets shipped into __init__()
+client1Object.main()
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
-import asyncio
-class how:
-    def __init__(self):
-        print("BOOOOM")
-    async def snmp(self):
-        print("Doing the snmp thing")
-        await asyncio.sleep(1)
-    async def proxy(self):
-        print("Doing the proxy thing")
-        await asyncio.sleep(2)
-    async def main(self):
-        while True:
-            await self.snmp()
-            await self.proxy()
-    def crazt(self):
-        loop = asyncio.get_event_loop()
-        asyncio.ensure_future(self.main()) # However if you need to create task from arbitrary awaitable, you should use asyncio.ensure_future(obj) vs. loop.create_task(self.main())
-        loop.run_forever()
-howOb = how()
-howOb.crazt()
-'''
+# self.conn.close()???
