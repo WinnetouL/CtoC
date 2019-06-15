@@ -2,6 +2,7 @@
 # within defined functions
 # just one socket in use
 # modular structure
+# prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and quitting
 
 import socket
 
@@ -18,16 +19,19 @@ class client2Class:
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)       # SOCK_STREAM -> TCP
         self.sock.connect((client2Class.TCP_IP, client2Class.TCP_PORT))       # connect to client socket
+        print("---- Client 2 active ----\n")
 
 
     def main(self):
-        print("---- Client 2 active ----")
-        print('Connection from client-2: ', self.sock.getsockname(), 'to CLIENT-1: ', client2Class.TCP_IP)
-        msg = "Welcome from CLIENT-2!"
-        self.sendCli2(msg)
-        self.recvCli2()
-        msg = input("Second msg to client-1?: ")
-        self.sendCli2(msg)
+        try:
+            print('Connection from client-2: ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-1: ', client2Class.TCP_IP)
+            msg = "Welcome from CLIENT-2!"
+            self.sendCli2(msg)
+            self.recvCli2()
+            msg = input("Second msg to client-1?: ")
+            self.sendCli2(msg)
+        except ConnectionResetError as e:
+            print("Client-1 closed the window\n", "OS-Error:", e, "\nApplication quitted")
 
 
     def sendCli2(self, msg):
