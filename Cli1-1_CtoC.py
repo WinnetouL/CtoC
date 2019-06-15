@@ -3,7 +3,6 @@
 # just one socket in use
 # modular structure
 # prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and restarting
-# some tweaking for the userside
 
 import socket
 
@@ -28,16 +27,16 @@ class client1Class:
     def main(self):
         try:
             print('Connection from: client-1 ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-2: ', self.addr[0])      # instead of "self.addr" I could just use TCP_IP
-            self.receiveCli1()
+            self.recvCli1()
             self.sendCli1()
-            self.receiveCli1()
+            self.recvCli1()
         except ConnectionResetError as e:
             print("Client-2 closed the window\n", "OS-Error:", e, "\nApplication restarted")
             self.__init__()
             self.main()
 
 
-    def receiveCli1(self):
+    def recvCli1(self):
 
         while True:
             fullClient2Msg = ''
@@ -50,7 +49,7 @@ class client1Class:
                     print(f"First 10 characters of Client-2's message: {msg[:client1Class.HEADERSIZE]}")       # printing out the first 10 characters (Headersize) of the message
                     msgLen = int(msg[:client1Class.HEADERSIZE])      # append everything of the first 10 characters (Headersize) to 'msgLen'. In our case it is always just the number of the length and blanks nothing else, so e.g.: 22
                     newClient2Msg = False
-
+                
                 fullClient2Msg += msg.decode("utf-8")        # decode the chunks of the received msg by given transformation format and append 16 characters each turn of the while loop to the full msg variable ('fullClient2Msg')
 
                 if len(fullClient2Msg)-client1Class.HEADERSIZE == msgLen:     # this part is only going to be passed if the (length of 'fullClient2Msg' (1.round=16, 2.round=32 (next 16 'or less'))) - ('Headersize' (10 characters)) equals the determined ('msgLen' (22))
