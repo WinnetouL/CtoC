@@ -2,6 +2,8 @@
 # within defined functions
 # just one socket in use
 # modular structure
+# prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and restarting
+# some tweaking for the userside
 
 import socket
 
@@ -20,14 +22,19 @@ class client1Class:
         self.sock.bind((client1Class.TCP_IP, client1Class.TCP_PORT))
         self.sock.listen(1)
         self.conn, self.addr = self.sock.accept()       # the accept funtion returns 2 values, which get assigned to variable
+        print("---- Client 1 active - waiting for connections ----\n")
 
 
     def main(self):
-        print("---- Client 1 active ----")
-        print('Connection from: client-1 ', self.sock.getsockname(), 'to CLIENT-2: ', self.addr)      # instead of "self.addr" I could just use TCP_IP
-        self.receiveCli1()
-        self.sendCli1()
-        self.receiveCli1()
+        try:
+            print('Connection from: client-1 ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-2: ', self.addr[0])      # instead of "self.addr" I could just use TCP_IP
+            self.receiveCli1()
+            self.sendCli1()
+            self.receiveCli1()
+        except ConnectionResetError as e:
+            print("Client-2 closed the window\n", "OS-Error:", e, "\nApplication restarted")
+            self.__init__()
+            self.main()
 
 
     def receiveCli1(self):
