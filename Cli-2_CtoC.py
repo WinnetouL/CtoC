@@ -80,9 +80,3 @@ class client2Class:
 
 client2Object = client2Class()
 client2Object.main()
-
-
-
-
-# self.s.close()???
-# later: getsockname() and getpeername()
