@@ -28,7 +28,6 @@ class client1Class:
 
 
     def main(self):
-        try:
             print('Connection from: client-1 ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-2: ', self.addr[0])      # instead of "self.addr" I could just use TCP_IP
             t0 = threading.Thread(target = self.recvCli1)
             t1 = threading.Thread(target = self.sendCli1)
@@ -50,30 +49,31 @@ class client1Class:
                     print("shutting down")
                     sys.exit(0)
 
+
+
+    def recvCli1(self):
+        try:
+            while True:
+                fullClient2Msg = ''
+                newClient2Msg = True
+
+                while True:
+                    msg = self.conn.recv(16)
+                    if newClient2Msg == True:        # the if part will be passed just once to figure out how long the msg will be, because newClientRespond is going to be set to false
+                        print(f"First 10 characters of Client-2's message: {msg[:client1Class.HEADERSIZE]}")       # printing out the first 10 characters (Headersize) of the message
+                        msgLen = int(msg[:client1Class.HEADERSIZE])      # append everything of the first 10 characters (Headersize) to 'msgLen'. In our case it is always just the number of the length and blanks nothing else, so e.g.: 22
+                        newClient2Msg = False
+                    
+                    fullClient2Msg += msg.decode("utf-8")        # decode the chunks of the received msg by given transformation format and append 16 characters each turn of the while loop to the full msg variable ('fullClient2Msg')
+
+                    if len(fullClient2Msg)-client1Class.HEADERSIZE == msgLen:     # this part is only going to be passed if the (length of 'fullClient2Msg' (1.round=16, 2.round=32 (next 16 'or less'))) - ('Headersize' (10 characters)) equals the determined ('msgLen' (22))
+                        print("Client-2's message received: ", fullClient2Msg[client1Class.HEADERSIZE:])        # if this is true full message is received. Printing everything out continuing after the 10 characters (Headersize)
+                        break
+        
         except ConnectionResetError as e:
             print("Client-2 closed the window\n", "OS-Error:", e, "\nApplication restarted")
             self.__init__()
             self.main()
-
-
-    def recvCli1(self):
-        while True:
-            fullClient2Msg = ''
-            newClient2Msg = True
-
-            while True:
-                msg = self.conn.recv(16)
-
-                if newClient2Msg == True:        # the if part will be passed just once to figure out how long the msg will be, because newClientRespond is going to be set to false
-                    print(f"First 10 characters of Client-2's message: {msg[:client1Class.HEADERSIZE]}")       # printing out the first 10 characters (Headersize) of the message
-                    msgLen = int(msg[:client1Class.HEADERSIZE])      # append everything of the first 10 characters (Headersize) to 'msgLen'. In our case it is always just the number of the length and blanks nothing else, so e.g.: 22
-                    newClient2Msg = False
-                
-                fullClient2Msg += msg.decode("utf-8")        # decode the chunks of the received msg by given transformation format and append 16 characters each turn of the while loop to the full msg variable ('fullClient2Msg')
-
-                if len(fullClient2Msg)-client1Class.HEADERSIZE == msgLen:     # this part is only going to be passed if the (length of 'fullClient2Msg' (1.round=16, 2.round=32 (next 16 'or less'))) - ('Headersize' (10 characters)) equals the determined ('msgLen' (22))
-                    print("Client-2's message received: ", fullClient2Msg[client1Class.HEADERSIZE:])        # if this is true full message is received. Printing everything out continuing after the 10 characters (Headersize)
-                    break
 
 
     def sendCli1(self):
