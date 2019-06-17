@@ -3,7 +3,6 @@
 # just one socket in use
 # modular structure
 # prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and restarting
-# some tweaking for the userside
 
 import socket
 
@@ -28,16 +27,16 @@ class client1Class:
     def main(self):
         try:
             print('Connection from: client-1 ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-2: ', self.addr[0])      # instead of "self.addr" I could just use TCP_IP
-            self.receiveCli1()
+            self.recvCli1()
             self.sendCli1()
-            self.receiveCli1()
+            self.recvCli1()
         except ConnectionResetError as e:
             print("Client-2 closed the window\n", "OS-Error:", e, "\nApplication restarted")
             self.__init__()
             self.main()
 
 
-    def receiveCli1(self):
+    def recvCli1(self):
 
         while True:
             fullClient2Msg = ''
