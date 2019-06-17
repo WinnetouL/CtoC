@@ -5,7 +5,7 @@
 # prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and quitting
 
 import socket
-
+import threading
 
 
 class client2Class:
