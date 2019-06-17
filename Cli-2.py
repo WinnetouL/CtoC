@@ -25,7 +25,6 @@ class client2Class:
 
 
     def main(self):
-        try:
             print('Connection from client-2: ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-1: ', client2Class.TCP_IP)
             # msg = "Welcome from CLIENT-2!"
             t0 = threading.Thread(target = self.sendCli2)
@@ -50,8 +49,6 @@ class client2Class:
             
             # msg = input("Second msg to client-1?: ")
             # self.sendCli2(msg)
-        except ConnectionResetError as e:
-            print("Client-1 closed the window\n", "OS-Error:", e, "\nApplication quitted")
 
 
     def sendCli2(self):
@@ -63,25 +60,30 @@ class client2Class:
         
 
     def recvCli2(self):
-        
-        while True:
-            fullClient1Msg = ''
-            newClient1Msg = True
-
+        try:
             while True:
-                msg = self.sock.recv(16)
+                fullClient1Msg = ''
+                newClient1Msg = True
 
-                if newClient1Msg == True:
-                    print(f"First 10 characters of client-1's message: {msg[:client2Class.HEADERSIZE]}")
-                    msgLen = int(msg[:client2Class.HEADERSIZE])
-                    newClient1Msg = False
+                while True:
+                    msg = self.sock.recv(16)
+                    if newClient1Msg == True:
+                        print(f"First 10 characters of client-1's message: {msg[:client2Class.HEADERSIZE]}")
+                        msgLen = int(msg[:client2Class.HEADERSIZE])
+                        newClient1Msg = False
 
-                fullClient1Msg += msg.decode("utf-8")
+                    fullClient1Msg += msg.decode("utf-8")
 
-                if len(fullClient1Msg)-client2Class.HEADERSIZE == msgLen:
-                    print("Client-1's message received: ", fullClient1Msg[client2Class.HEADERSIZE:])
-                    break
+                    if len(fullClient1Msg)-client2Class.HEADERSIZE == msgLen:
+                        print("Client-1's message received: ", fullClient1Msg[client2Class.HEADERSIZE:])
+                        break
 
+        except ConnectionResetError as e:
+            print("Client-1 closed the window\n", "OS-Error:", e, "\nApplication quitted")
+            print("bye")
+            sys.exit(0)
+            print("byebyebye")
+            
 
 
 client2Object = client2Class()
