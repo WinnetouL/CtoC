@@ -25,21 +25,23 @@ class client2Class:
     def main(self):
         try:
             print('Connection from client-2: ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-1: ', client2Class.TCP_IP)
-            msg = "Welcome from CLIENT-2!"
-            self.sendCli2(msg)
-            self.recvCli2()
-            msg = input("Second msg to client-1?: ")
-            self.sendCli2(msg)
+            # msg = "Welcome from CLIENT-2!"
+            t0 = threading.Thread(target = self.sendCli2())
+            t1 = threading.Thread(target = self.recvCli2())
+            t0.start()
+            t1.start()
+            # msg = input("Second msg to client-1?: ")
+            # self.sendCli2(msg)
         except ConnectionResetError as e:
             print("Client-1 closed the window\n", "OS-Error:", e, "\nApplication quitted")
 
 
-    def sendCli2(self, msg):
-
+    def sendCli2(self):
+        # print('this is MSGGGGGGGGGGG', msg)
+        msg = input("Second msg to client-1?: ")
         while True:
             msg = f"{len(msg):<{client2Class.HEADERSIZE}}" + msg     # rebuild msg: counting length of msg and append the length number in front of the msg within the defined headersize
             self.sock.send(bytes(msg, "utf-8"))     # send msg in given transformation format
-            break
 
 
     def recvCli2(self):
@@ -61,7 +63,6 @@ class client2Class:
                 if len(fullClient1Msg)-client2Class.HEADERSIZE == msgLen:
                     print("Client-1's message received: ", fullClient1Msg[client2Class.HEADERSIZE:])
                     break
-            break
 
 
 
