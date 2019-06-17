@@ -1,8 +1,8 @@
-# to client-1: send msg; receive msg; send msg
+# dynamic chatting
 # within defined functions
 # just one socket in use
 # modular structure
-# prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and quitting
+# ?????? prevent application from crashing due an expected 'ConnectionResetError' (connection handling) and quitting
 
 import socket
 import threading
@@ -28,8 +28,8 @@ class client2Class:
         try:
             print('Connection from client-2: ', socket.gethostbyname(socket.gethostname()), ' to CLIENT-1: ', client2Class.TCP_IP)
             # msg = "Welcome from CLIENT-2!"
-            t0 = threading.Thread(target = self.sendCli2())
-            t1 = threading.Thread(target = self.recvCli2())
+            t0 = threading.Thread(target = self.sendCli2)
+            t1 = threading.Thread(target = self.recvCli2)
             t0.daemon = True        # mark these functiones as daemon threads, which are parts of the main thread (main > daemon).
             t1.daemon = True        # This enables the possibility to stop the main thread with cmd + c and the other threads will stop as well, because they are daemons. Otherwise the started threads would continuously run.
             t0.start()
@@ -41,9 +41,9 @@ class client2Class:
                 if a != 1:
                     a = threading.active_count()
                     # b = threading.enumerate()
-                    print("nr",a)
+                    print("nr", a)
                     # print(b)
-                    time.sleep(2)
+                    time.sleep(8)
                 else:
                     print("shutting down")
                     sys.exit(0)
@@ -55,12 +55,16 @@ class client2Class:
 
 
     def sendCli2(self):
-        msg = input("Second msg to client-1?: ")
-        msg = f"{len(msg):<{client2Class.HEADERSIZE}}" + msg     # rebuild msg: counting length of msg and append the length number in front of the msg within the defined headersize
-        self.sock.send(bytes(msg, "utf-8"))     # send msg in given transformation format
-
+        
+        while True:
+            msg = input("Second msg to client-1?: ")
+            msg = f"{len(msg):<{client2Class.HEADERSIZE}}" + msg     # rebuild msg: counting length of msg and append the length number in front of the msg within the defined headersize
+            self.sock.send(bytes(msg, "utf-8"))     # send msg in given transformation format
+        
 
     def recvCli2(self):
+        
+        while True:
             fullClient1Msg = ''
             newClient1Msg = True
 
