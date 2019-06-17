@@ -32,7 +32,6 @@ class client1Class:
     
         t0 = threading.Thread(target = self.recvCli1)
         t1 = threading.Thread(target = self.sendCli1)
-    
         while True:
             if t0.is_alive() == False:
                 t0 = threading.Thread(target = self.recvCli1)
