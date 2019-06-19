@@ -17,7 +17,7 @@ Every version provides a new functionality along following items:
 - "dynamic" chatting
 - prevent application from crashing due an expected 'ConnectionResetError' (connection handling) in both directions
 
-Version 6 is my final prototype atm. In another repository server and client side will be separate.
+Version 6 is my final prototype (Cli-1.py/Cli-2.py) atm. In the next step I will clearly separate into server and client side within new files.
 
 #### Main sources:
 - https://www.youtube.com/watch?v=Lbfe3-v7yE0
