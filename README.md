@@ -1,13 +1,11 @@
-# CtoC
+# messenger
 
 #### Environment:
 - python 3.7.3
 - windows (probably works for macOS as well)
 
-
 #### How-to:
 1. always run client 1 before you start client 2
-
 
 #### Description:
 Chat between client 1 and client 2 without an additional server.
