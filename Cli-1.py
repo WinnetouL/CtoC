@@ -21,14 +21,14 @@ class client1Class:
         self.sock.bind((client1Class.TCP_IP, client1Class.TCP_PORT))
         self.sock.listen(1)
         self.conn, self.addr = self.sock.accept()
-
-    def main(self):
         print(
             "Connection from: client-1 ",
             socket.gethostbyname(socket.gethostname()),
             " to CLIENT-2: ",
             self.addr[0],
         )
+
+    def main(self):
         t0 = threading.Thread(target=self.recvCli1)
         t1 = threading.Thread(target=self.sendCli1)
         while True:
