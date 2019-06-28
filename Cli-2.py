@@ -20,14 +20,14 @@ class client2Class:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((client2Class.TCP_IP, client2Class.TCP_PORT))
         print("---- Client 2 active ----\n")
-
-    def main(self):
         print(
             "Connection from client-2: ",
             socket.gethostbyname(socket.gethostname()),
             " to CLIENT-1: ",
             client2Class.TCP_IP,
         )
+
+    def main(self):
         t0 = threading.Thread(target=self.sendCli2)
         t1 = threading.Thread(target=self.recvCli2)
         t0.daemon = True
