@@ -22,9 +22,9 @@ class client1Class:
         self.sock.listen(1)
         self.conn, self.addr = self.sock.accept()
         print(
-            "Connection from: client-1 ",
+            "Connection from client-1 ",
             socket.gethostbyname(socket.gethostname()),
-            " to CLIENT-2: ",
+            " to client-2: ",
             self.addr[0],
         )
 
