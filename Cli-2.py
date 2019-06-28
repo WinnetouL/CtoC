@@ -23,7 +23,7 @@ class client2Class:
         print(
             "Connection from client-2: ",
             socket.gethostbyname(socket.gethostname()),
-            " to CLIENT-1: ",
+            " to client-1: ",
             client2Class.TCP_IP,
         )
 
