@@ -53,7 +53,7 @@ class client1Class:
                     msg = self.conn.recv(16)
                     if newClient2Msg is True:
                         print(
-                            f"First 10 characters of Client-2's message:\
+                            f"First 10 characters of client-2's message:\
                             {msg[:client1Class.HEADERSIZE]}"
                         )
                         msgLen = int(msg[: client1Class.HEADERSIZE])
@@ -65,18 +65,18 @@ class client1Class:
                             fullClient2Msg[client1Class.HEADERSIZE :],
                         )
                         break
-        except ConnectionResetError as e1:
+        except ConnectionResetError as e:
             print(
                 "Client-2 closed the window\n",
                 "OS-Error:",
-                e1,
+                e,
                 "\nApplication restarted",
             )
             self.__init__()
 
     def sendCli1(self):
         while True:
-            msg = input("Second msg to client-2?: ")
+            msg = input("Msg to client-2?: ")
             msg = f"{len(msg):<{client1Class.HEADERSIZE}}" + msg
             self.conn.send(bytes(msg, "utf-8"))
 
