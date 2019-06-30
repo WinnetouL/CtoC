@@ -47,7 +47,7 @@ class client2Class:
 
     def sendCli2(self):
         while True:
-            msg = input("Second msg to client-1?: ")
+            msg = input("Msg to client-1?: ")
             msg = f"{len(msg):<{client2Class.HEADERSIZE}}" + msg
             self.sock.send(bytes(msg, "utf-8"))
 
