@@ -1,6 +1,7 @@
 fasttest.py
 test1.py
 test2.py
+client.py
 server.py
 ver1_CLI-1_CtoC.py
 ver1_CLI-2_CtoC.py
