@@ -42,32 +42,18 @@ class serverClass:
                             f"First 10 characters of client's message:\
                             {msg[:serverClass.HEADERSIZE]}"
                         )
-                    if msg[:1].decode("utf-8"):
+                    if msg[:1].decode("utf-8") in "!" and newClientMsg is True:
                         msgLen = int(msg[1 : serverClass.HEADERSIZE])
                         print("msgLen1", msgLen)
                         newClientMsg = False
-                    elif msg[:1].decode("utf-8"):
+                    elif (
+                        msg[:1].decode("utf-8") not in "!"
+                        and newClientMsg is True
+                    ):
                         msgLen = int(msg[: serverClass.HEADERSIZE])
                         print("msgLen2", msgLen)
                         newClientMsg = False
-                    print("length defined", fullClientMsg)
-                    print(
-                        "\nif",
-                        len(fullClientMsg),
-                        "-",
-                        serverClass.HEADERSIZE,
-                        "==",
-                        msgLen,
-                    )
                     fullClientMsg += msg.decode("utf-8")
-                    print(
-                        "\nif",
-                        len(fullClientMsg),
-                        "-",
-                        serverClass.HEADERSIZE,
-                        "==",
-                        msgLen,
-                    )
                     if len(fullClientMsg) - serverClass.HEADERSIZE == msgLen:
                         print(
                             "<client>  ",
