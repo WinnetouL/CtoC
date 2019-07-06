@@ -45,6 +45,12 @@ class clientClass:
                 pass
 
     def send(self, userName):
+        userNameIdent = "!"
+        msg = (
+            f"{userNameIdent}{len(userName):<{clientClass.HEADERSIZE}}"
+            + userName
+        )
+        self.sock.send(bytes(msg, "utf-8"))
         while True:
             msg = input(f"<{userName}> ")
             msg = f"{len(msg):<{clientClass.HEADERSIZE}}" + msg
@@ -63,7 +69,7 @@ class clientClass:
                     fullServerMsg += msg.decode("utf-8")
                     if len(fullServerMsg) - clientClass.HEADERSIZE == msgLen:
                         print(
-                            "\nserver: ",
+                            "\n<server> ",
                             fullServerMsg[clientClass.HEADERSIZE :],
                         )
                         break
@@ -78,6 +84,3 @@ class clientClass:
 
 clientObject = clientClass()
 clientObject.main()
-
-
-# send username once
