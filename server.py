@@ -18,7 +18,7 @@ class serverClass:
 
     def main(self):
         self.sock.listen(3)
-        serverMsg = "Choose a username: "
+        serverMsg = "Some Server Msg"
         while True:
             conn, addr = self.sock.accept()
             threading.Thread(target=self.send, args=(conn, serverMsg)).start()
@@ -42,12 +42,35 @@ class serverClass:
                             f"First 10 characters of client's message:\
                             {msg[:serverClass.HEADERSIZE]}"
                         )
-                        msgLen = int(msg[: serverClass.HEADERSIZE])
+                    if msg[:1].decode("utf-8"):
+                        msgLen = int(msg[1 : serverClass.HEADERSIZE])
+                        print("msgLen1", msgLen)
                         newClientMsg = False
+                    elif msg[:1].decode("utf-8"):
+                        msgLen = int(msg[: serverClass.HEADERSIZE])
+                        print("msgLen2", msgLen)
+                        newClientMsg = False
+                    print("length defined", fullClientMsg)
+                    print(
+                        "\nif",
+                        len(fullClientMsg),
+                        "-",
+                        serverClass.HEADERSIZE,
+                        "==",
+                        msgLen,
+                    )
                     fullClientMsg += msg.decode("utf-8")
+                    print(
+                        "\nif",
+                        len(fullClientMsg),
+                        "-",
+                        serverClass.HEADERSIZE,
+                        "==",
+                        msgLen,
+                    )
                     if len(fullClientMsg) - serverClass.HEADERSIZE == msgLen:
                         print(
-                            "Client's message received: ",
+                            "<client>  ",
                             fullClientMsg[serverClass.HEADERSIZE :],
                         )
                         break
@@ -67,4 +90,5 @@ serverObject.main()
 
 # end application properly
 # deny doubled usernames
+# deny empty usernames
 # user handling according to usernames
