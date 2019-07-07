@@ -46,10 +46,8 @@ class clientClass:
 
     def send(self, userName):
         userNameIdent = "!"
-        msg = (
-            f"{userNameIdent}{len(userName):<{clientClass.HEADERSIZE}}"
-            + userName
-        )
+        userNamePrefix = userNameIdent + str(len(userName))
+        msg = f"{userNamePrefix:<{clientClass.HEADERSIZE}}" + userName
         self.sock.send(bytes(msg, "utf-8"))
         while True:
             msg = input(f"<{userName}> ")
