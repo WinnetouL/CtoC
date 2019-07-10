@@ -3,6 +3,7 @@
 
 import socket
 import threading
+import datetime
 
 
 class serverClass:
@@ -55,7 +56,14 @@ class serverClass:
                         newClientMsg = False
                     fullClientMsg += msg.decode("utf-8")
                     if len(fullClientMsg) - serverClass.HEADERSIZE == msgLen:
+                        currTime = datetime.datetime.now()
+                        formattedTime = currTime.strftime(
+                            "%Y-%m-%d %H:%M:%S.%f"
+                        )[:-3]
                         print(
+                            "[",
+                            formattedTime,
+                            "]",
                             "<client>  ",
                             fullClientMsg[serverClass.HEADERSIZE :],
                         )
