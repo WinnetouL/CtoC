@@ -20,13 +20,7 @@ class clientClass:
     def main(self):
         userName = input("Username ? ")
         print(f"--> You chose {userName}\n")
-        print(
-            "Connection from client: ",
-            socket.gethostbyname(socket.gethostname()),
-            " to server: ",
-            clientClass.TCP_IP,
-            "\n",
-        )
+        print("Connection from client: ", socket.gethostbyname(socket.gethostname()), " to server: ", clientClass.TCP_IP, "\n")
         t0 = threading.Thread(target=self.send, args=(userName,))
         t1 = threading.Thread(target=self.recv)
         t0.daemon = True
@@ -66,18 +60,10 @@ class clientClass:
                         newServerMsg = False
                     fullServerMsg += msg.decode("utf-8")
                     if len(fullServerMsg) - clientClass.HEADERSIZE == msgLen:
-                        print(
-                            "\n<server> ",
-                            fullServerMsg[clientClass.HEADERSIZE :],
-                        )
+                        print("\n<server> ", fullServerMsg[clientClass.HEADERSIZE :])
                         break
         except ConnectionResetError as e:
-            print(
-                "Server closed the connection\n",
-                "OS-Error:",
-                e,
-                "\nApplication quitted",
-            )
+            print("Server closed the connection\n", "OS-Error:", e, "\nApplication quitted")
 
 
 clientObject = clientClass()
