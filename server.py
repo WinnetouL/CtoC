@@ -1,4 +1,5 @@
 # + accept and run multiple connections
+# + store chat messages
 
 
 import socket
@@ -10,7 +11,6 @@ class serverClass:
     TCP_IP = socket.gethostbyname(socket.gethostname())
     TCP_PORT = 1234
     HEADERSIZE = 10
-    USERNAME = "server"
 
     def __init__(self):
         print("---- Server active - waiting for connections ----\n")
@@ -24,49 +24,30 @@ class serverClass:
             conn, addr = self.sock.accept()
             threading.Thread(target=self.send, args=(conn, serverMsg)).start()
             threading.Thread(target=self.recv, args=(conn,)).start()
-            print(
-                "Connection from: Server ",
-                socket.gethostbyname(socket.gethostname()),
-                " to Client: ",
-                addr[0],
-            )
+            print("Connection from: Server ", socket.gethostbyname(socket.gethostname()), " to Client: ", addr[0])
 
     def recv(self, conn):
         try:
+            userName = ""
             while True:
                 fullClientMsg = ""
                 newClientMsg = True
                 while True:
                     msg = conn.recv(16)
-                    if newClientMsg is True:
-                        print(
-                            f"First 10 characters of client's message:\
-                            {msg[:serverClass.HEADERSIZE]}"
-                        )
                     if msg[:1].decode("utf-8") in "!" and newClientMsg is True:
                         msgLen = int(msg[1 : serverClass.HEADERSIZE])
-                        print("msgLen1", msgLen)
                         newClientMsg = False
-                    elif (
-                        msg[:1].decode("utf-8") not in "!"
-                        and newClientMsg is True
-                    ):
+                    elif msg[:1].decode("utf-8") not in "!" and newClientMsg is True:
                         msgLen = int(msg[: serverClass.HEADERSIZE])
-                        print("msgLen2", msgLen)
                         newClientMsg = False
                     fullClientMsg += msg.decode("utf-8")
                     if len(fullClientMsg) - serverClass.HEADERSIZE == msgLen:
-                        currTime = datetime.datetime.now()
-                        formattedTime = currTime.strftime(
-                            "%Y-%m-%d %H:%M:%S.%f"
-                        )[:-3]
-                        print(
-                            "[",
-                            formattedTime,
-                            "]",
-                            "<client>  ",
-                            fullClientMsg[serverClass.HEADERSIZE :],
-                        )
+                        if fullClientMsg[:1] in "!":
+                            userName = f"{fullClientMsg[serverClass.HEADERSIZE :]}"
+                            print("<client> -->", userName)
+                            self.store("", userName)
+                        else:
+                            self.store(fullClientMsg, userName)
                         break
         except ConnectionResetError:
             print("--- Client closed the window ---")
@@ -76,6 +57,20 @@ class serverClass:
         msg = f"{len(msg):<{serverClass.HEADERSIZE}}" + msg
         print(msg)
         conn.send(bytes(msg, "utf-8"))
+
+    def store(self, fullClientMsg, userName):
+        currTime = datetime.datetime.now()
+        time = f"[{currTime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}]"
+        if fullClientMsg[:1] not in "!":
+            fullClientMsg = fullClientMsg[serverClass.HEADERSIZE :]
+        else:
+            print(time, userName)
+        f = open(userName + ".txt", "a")
+        storeMsg = f"{time} {fullClientMsg}\n"
+        f.write(storeMsg)
+        f.close()
+        f = open(userName + ".txt", "r")
+        # print(f.read())
 
 
 serverObject = serverClass()
