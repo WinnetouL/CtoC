@@ -2,11 +2,11 @@
 # + store chat messages
 # + provide functionality to send messages to chosen destinations
 
-import socket
-import threading
-import datetime
 import os
 import json
+import socket
+import datetime
+import threading
 
 
 class serverClass:
@@ -43,15 +43,15 @@ class serverClass:
                 newClientMsg = True
                 while True:
                     msg = conn.recv(16)
-                    if msg[:1].decode("utf-8") in "!" and newClientMsg is True:
-                        msgLen = int(msg[1 : serverClass.HEADERSIZE])
+                    if msg[:4].decode("utf-8") in "!!!!" and newClientMsg is True:
+                        msgLen = int(msg[4 : serverClass.HEADERSIZE])
                         newClientMsg = False
-                    elif msg[:1].decode("utf-8") not in "!" and newClientMsg is True:
+                    elif msg[:4].decode("utf-8") not in "!!!!" and newClientMsg is True:
                         msgLen = int(msg[: serverClass.HEADERSIZE])
                         newClientMsg = False
                     fullCltMsg += msg.decode("utf-8")
                     if len(fullCltMsg) - serverClass.HEADERSIZE == msgLen:
-                        if fullCltMsg[:1] in "!":
+                        if fullCltMsg[:4] in "!!!!":
                             userName = f"{fullCltMsg[serverClass.HEADERSIZE :]}"
                             print("<client> -->", userName)
                             self.store("", userName, conn)  # fullCltMsg parameter not needed in that situation -> ""
@@ -69,7 +69,7 @@ class serverClass:
     def store(self, fullCltMsg, userName, conn):
         currTime = datetime.datetime.now()
         time = f"[{currTime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}]"
-        if fullCltMsg[:1] not in "!":
+        if fullCltMsg[:4] not in "!!!!":
             fullCltMsg = fullCltMsg[serverClass.HEADERSIZE :]
         else:
             print(time, userName)
