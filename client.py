@@ -23,20 +23,20 @@ class clientClass:
         t1 = threading.Thread(target=self.recv)
         t1.daemon = True
         t1.start()
-        typeOfMsgDict = {"{switch}": "!!", "{quit}": "!!!"}
+        typeOfMsgList = ["{switch}", "{quit}"]
         while True:
             rawInput = input(f"<{clientClass.USERNAME}> ({{switch}}/{{quit}})")
-            if rawInput not in typeOfMsgDict.keys():
+            if rawInput not in typeOfMsgList:
                 t2 = threading.Thread(target=self.send, args=(rawInput,))
                 t2.start()
             else:
-                t2 = threading.Thread(target=self.send, args=(typeOfMsgDict[rawInput],))
+                t2 = threading.Thread(target=self.send, args=(rawInput,))
                 t2.start()
 
     def send(self, msgOrTypeOfMsg="!"):
-        if msgOrTypeOfMsg == "!!":
+        if msgOrTypeOfMsg == "{switch}":
             print(msgOrTypeOfMsg, "switch")
-        elif msgOrTypeOfMsg == "!!!":
+        elif msgOrTypeOfMsg == "{quit}":
             print(msgOrTypeOfMsg, "quit")
         elif msgOrTypeOfMsg == "!!!!":
             clientClass.USERNAME = input("Username ? ")
