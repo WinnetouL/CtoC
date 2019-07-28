@@ -1,8 +1,6 @@
 # + set username
+# + provide functionality to switch contact to chat with, quit and send messages
 
-
-import sys
-import time
 import socket
 import threading
 
@@ -11,6 +9,7 @@ class clientClass:
     TCP_IP = socket.gethostbyname(socket.gethostname())
     TCP_PORT = 1234
     HEADERSIZE = 10
+    USERNAME = ""
 
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,34 +17,36 @@ class clientClass:
         print("---- Client active ----\n")
 
     def main(self):
-        userName = input("Username ? ")
-        print(f"--> You chose {userName}\n")
         print("Connection from client: ", socket.gethostbyname(socket.gethostname()), " to server: ", clientClass.TCP_IP, "\n")
-        t0 = threading.Thread(target=self.send, args=(userName,))
-        t1 = threading.Thread(target=self.recv)
-        t0.daemon = True
-        t1.daemon = True
+        t0 = threading.Thread(target=self.send, args=("!!!!",))
         t0.start()
+        t1 = threading.Thread(target=self.recv)
+        t1.daemon = True
         t1.start()
+        typeOfMsgDict = {"{switch}": "!!", "{quit}": "!!!"}
         while True:
-            a = threading.active_count()
-            if a != 3:
-                a = threading.active_count()
-                print("Threads alive: ", a)
-                print("Shutting down!")
-                sys.exit(0)
+            rawInput = input(f"<{clientClass.USERNAME}> ({{switch}}/{{quit}})")
+            if rawInput not in typeOfMsgDict.keys():
+                t2 = threading.Thread(target=self.send, args=(rawInput,))
+                t2.start()
             else:
-                time.sleep(2)
-                pass
+                t2 = threading.Thread(target=self.send, args=(typeOfMsgDict[rawInput],))
+                t2.start()
 
-    def send(self, userName):
-        userNameIdent = "!"
-        userNamePrefix = userNameIdent + str(len(userName))
-        msg = f"{userNamePrefix:<{clientClass.HEADERSIZE}}" + userName
-        self.sock.send(bytes(msg, "utf-8"))
-        while True:
-            msg = input(f"<{userName}> ")
-            msg = f"{len(msg):<{clientClass.HEADERSIZE}}" + msg
+    def send(self, msgOrTypeOfMsg="!"):
+        if msgOrTypeOfMsg == "!!":
+            print(msgOrTypeOfMsg, "switch")
+        elif msgOrTypeOfMsg == "!!!":
+            print(msgOrTypeOfMsg, "quit")
+        elif msgOrTypeOfMsg == "!!!!":
+            clientClass.USERNAME = input("Username ? ")
+            print(f"--> You chose {clientClass.USERNAME}\n")
+            userNamePrefix = msgOrTypeOfMsg + str(len(clientClass.USERNAME))
+            msg = f"{userNamePrefix:<{clientClass.HEADERSIZE}}" + clientClass.USERNAME
+            self.sock.send(bytes(msg, "utf-8"))
+        else:
+            msg = ""
+            msg = f"{len(msgOrTypeOfMsg):<{clientClass.HEADERSIZE}}" + msgOrTypeOfMsg
             self.sock.send(bytes(msg, "utf-8"))
 
     def recv(self):
