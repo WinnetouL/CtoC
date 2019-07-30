@@ -24,8 +24,8 @@ class clientClass:
         t1.daemon = True
         t1.start()
         while True:
-            rawInput = input(f"<{clientClass.USERNAME}> ({{switch}}/{{quit}})")
-            t2 = threading.Thread(target=self.send, args=(rawInput,))
+            msgOrTypeOfMsg = input(f"<{clientClass.USERNAME}> ({{switch}}/{{quit}})")
+            t2 = threading.Thread(target=self.send, args=(msgOrTypeOfMsg,))
             t2.start()
 
     def send(self, msgOrTypeOfMsg="!"):
