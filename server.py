@@ -12,7 +12,7 @@ import threading
 class serverClass:
     TCP_IP = socket.gethostbyname(socket.gethostname())
     TCP_PORT = 1234
-    HEADERSIZE = 10
+    HEADERSIZE = 20
     PATH = f"{os.getcwd()}/storage"
 
     def __init__(self):
@@ -42,21 +42,19 @@ class serverClass:
                 fullCltMsg = ""
                 newClientMsg = True
                 while True:
-                    msg = conn.recv(16)
-                    if msg[:4].decode("utf-8") == "!!!!" and newClientMsg is True:
-                        msgLen = int(msg[4 : serverClass.HEADERSIZE])
+                    msg = conn.recv(25)
+                    if msg[:6].decode("utf-8") == "{name}" and newClientMsg is True:
+                        msgLen = int(msg[6 : serverClass.HEADERSIZE])
                         newClientMsg = False
-                    elif msg[:4].decode("utf-8") != "!!!!" and newClientMsg is True:
+                    elif msg[:6].decode("utf-8") != "{name}" and newClientMsg is True:
                         msgLen = int(msg[: serverClass.HEADERSIZE])
                         newClientMsg = False
                     fullCltMsg += msg.decode("utf-8")
                     if len(fullCltMsg) - serverClass.HEADERSIZE == msgLen:
-                        if fullCltMsg[:4] == "!!!!":
+                        if fullCltMsg[:6] == "{name}":
                             userName = f"{fullCltMsg[serverClass.HEADERSIZE :]}"
                             print("<client> -->", userName)
-                            self.store(fullCltMsg, userName, conn)  # fullCltMsg parameter not needed in that situation -> ""
-                        else:
-                            self.store(fullCltMsg, userName, conn)  # addr parameter not needed in that situation -> ""
+                        self.store(fullCltMsg, userName, conn)
                         break
         except ConnectionResetError:
             print("--- Client closed the window ---")
@@ -69,7 +67,7 @@ class serverClass:
     def store(self, fullCltMsg, userName, conn):
         currTime = datetime.datetime.now()
         time = f"[{currTime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}]"
-        if fullCltMsg[:4] != "!!!!":
+        if fullCltMsg[:6] != "{name}":
             fullCltMsg = fullCltMsg[serverClass.HEADERSIZE :]
             storeMsgData = {}
             msg = {}
