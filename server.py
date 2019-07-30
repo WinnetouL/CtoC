@@ -67,7 +67,17 @@ class serverClass:
     def store(self, fullCltMsg, userName, conn):
         currTime = datetime.datetime.now()
         time = f"[{currTime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}]"
-        if fullCltMsg[:6] != "{name}":
+        if fullCltMsg[:6] == "{name}":
+            print(time, userName)
+            with open(f"{serverClass.PATH}/addressTable.txt", "a") as f:
+                storeUserName = f"{userName}\n"
+                f.write(storeUserName)
+                f.close()
+            with open(f"{serverClass.PATH}/addressTable.txt", "r") as f:
+                storeUserName = f.read()
+                self.send(conn, storeUserName)
+                f.close()
+        else:
             fullCltMsg = fullCltMsg[serverClass.HEADERSIZE :]
             storeMsgData = {}
             msg = {}
@@ -81,15 +91,6 @@ class serverClass:
                 json_data = json.dumps(storeMsgData)
                 f.write(json_data + "\n")
             f.close()
-        else:
-            print(time, userName)
-            with open(f"{serverClass.PATH}/addressTable.txt", "a") as f:
-                storeUserName = f"{userName}\n"
-                f.write(storeUserName)
-                f.close()
-            with open(f"{serverClass.PATH}/addressTable.txt", "r") as f:
-                storeUserName = f.read()
-                self.send(conn, storeUserName)
 
 
 serverObject = serverClass()
