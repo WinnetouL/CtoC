@@ -8,7 +8,7 @@ import threading
 class clientClass:
     TCP_IP = socket.gethostbyname(socket.gethostname())
     TCP_PORT = 1234
-    HEADERSIZE = 10
+    HEADERSIZE = 20
     USERNAME = ""
 
     def __init__(self):
@@ -18,27 +18,22 @@ class clientClass:
 
     def main(self):
         print("Connection from client: ", socket.gethostbyname(socket.gethostname()), " to server: ", clientClass.TCP_IP, "\n")
-        t0 = threading.Thread(target=self.send, args=("!!!!",))
+        t0 = threading.Thread(target=self.send, args=("{name}",))
         t0.start()
         t1 = threading.Thread(target=self.recv)
         t1.daemon = True
         t1.start()
-        typeOfMsgList = ["{switch}", "{quit}"]
         while True:
             rawInput = input(f"<{clientClass.USERNAME}> ({{switch}}/{{quit}})")
-            if rawInput not in typeOfMsgList:
-                t2 = threading.Thread(target=self.send, args=(rawInput,))
-                t2.start()
-            else:
-                t2 = threading.Thread(target=self.send, args=(rawInput,))
-                t2.start()
+            t2 = threading.Thread(target=self.send, args=(rawInput,))
+            t2.start()
 
     def send(self, msgOrTypeOfMsg="!"):
         if msgOrTypeOfMsg == "{switch}":
             print(msgOrTypeOfMsg, "switch")
         elif msgOrTypeOfMsg == "{quit}":
             print(msgOrTypeOfMsg, "quit")
-        elif msgOrTypeOfMsg == "!!!!":
+        elif msgOrTypeOfMsg == "{name}":
             clientClass.USERNAME = input("Username ? ")
             print(f"--> You chose {clientClass.USERNAME}\n")
             userNamePrefix = msgOrTypeOfMsg + str(len(clientClass.USERNAME))
@@ -55,7 +50,7 @@ class clientClass:
                 fullServerMsg = ""
                 newServerMsg = True
                 while True:
-                    msg = self.sock.recv(16)
+                    msg = self.sock.recv(25)
                     if newServerMsg is True:
                         msgLen = int(msg[: clientClass.HEADERSIZE])
                         newServerMsg = False
