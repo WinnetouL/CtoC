@@ -43,18 +43,18 @@ class serverClass:
                 newClientMsg = True
                 while True:
                     msg = conn.recv(16)
-                    if msg[:4].decode("utf-8") in "!!!!" and newClientMsg is True:
+                    if msg[:4].decode("utf-8") == "!!!!" and newClientMsg is True:
                         msgLen = int(msg[4 : serverClass.HEADERSIZE])
                         newClientMsg = False
-                    elif msg[:4].decode("utf-8") not in "!!!!" and newClientMsg is True:
+                    elif msg[:4].decode("utf-8") != "!!!!" and newClientMsg is True:
                         msgLen = int(msg[: serverClass.HEADERSIZE])
                         newClientMsg = False
                     fullCltMsg += msg.decode("utf-8")
                     if len(fullCltMsg) - serverClass.HEADERSIZE == msgLen:
-                        if fullCltMsg[:4] in "!!!!":
+                        if fullCltMsg[:4] == "!!!!":
                             userName = f"{fullCltMsg[serverClass.HEADERSIZE :]}"
                             print("<client> -->", userName)
-                            self.store("", userName, conn)  # fullCltMsg parameter not needed in that situation -> ""
+                            self.store(fullCltMsg, userName, conn)  # fullCltMsg parameter not needed in that situation -> ""
                         else:
                             self.store(fullCltMsg, userName, conn)  # addr parameter not needed in that situation -> ""
                         break
@@ -69,8 +69,20 @@ class serverClass:
     def store(self, fullCltMsg, userName, conn):
         currTime = datetime.datetime.now()
         time = f"[{currTime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}]"
-        if fullCltMsg[:4] not in "!!!!":
+        if fullCltMsg[:4] != "!!!!":
             fullCltMsg = fullCltMsg[serverClass.HEADERSIZE :]
+            storeMsgData = {}
+            msg = {}
+            with open(f"{serverClass.PATH}/{userName}.txt", "a") as f:
+                msg["time"] = time
+                msg["source"] = userName
+                msg["dest"] = "B"
+                msg["msg"] = fullCltMsg
+                storeMsgData["fullMsg"] = msg
+                print(storeMsgData)
+                json_data = json.dumps(storeMsgData)
+                f.write(json_data + "\n")
+            f.close()
         else:
             print(time, userName)
             with open(f"{serverClass.PATH}/addressTable.txt", "a") as f:
@@ -80,18 +92,6 @@ class serverClass:
             with open(f"{serverClass.PATH}/addressTable.txt", "r") as f:
                 storeUserName = f.read()
                 self.send(conn, storeUserName)
-        storeMsgData = {}
-        msg = {}
-        with open(f"{serverClass.PATH}/{userName}.txt", "a") as f:
-            msg["time"] = time
-            msg["source"] = userName
-            msg["dest"] = "B"
-            msg["msg"] = fullCltMsg
-            storeMsgData["fullMsg"] = msg
-            print(storeMsgData)
-            json_data = json.dumps(storeMsgData)
-            f.write(json_data + "\n")
-        f.close()
 
 
 serverObject = serverClass()
