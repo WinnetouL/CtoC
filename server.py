@@ -37,6 +37,7 @@ class serverClass:
 
     def recv(self, conn):
         try:
+            destination = ""
             while True:
                 fullCltMsg = ""
                 newClientMsg = True
@@ -56,17 +57,20 @@ class serverClass:
                         if fullCltMsg[:6] == "{name}":
                             userName = f"{fullCltMsg[serverClass.HEADERSIZE :]}"
                             print("<client> -->", userName)
-                        self.store(fullCltMsg, userName, conn)
+                        if fullCltMsg[:8] == "{switch}":
+                            if fullCltMsg[serverClass.HEADERSIZE :] != "{switch}":
+                                destination = f"{fullCltMsg[serverClass.HEADERSIZE :]}"
+                        self.store(fullCltMsg, userName, destination, conn)
                         break
         except ConnectionResetError:
             print("--- Client closed the window ---")
 
-    def send(self, conn, storeUserName):
-        msg = storeUserName
+    def send(self, conn, storedUserNames):
+        msg = storedUserNames
         msg = f"{len(msg):<{serverClass.HEADERSIZE}}" + msg
         conn.send(bytes(msg, "utf-8"))
 
-    def store(self, fullCltMsg, userName, conn):
+    def store(self, fullCltMsg, userName, destination, conn):
         currTime = datetime.datetime.now()
         time = f"[{currTime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}]"
         if fullCltMsg[:6] == "{name}":
@@ -78,8 +82,8 @@ class serverClass:
             if fullCltMsg[serverClass.HEADERSIZE :] == "{switch}":
                 print("addresstable")
                 with open(f"{serverClass.PATH}/addressTable.txt", "r") as f:
-                    storeUserName = f.read()
-                    self.send(conn, storeUserName)
+                    storedUserNames = f.read()
+                    self.send(conn, storedUserNames)
                     f.close()
             else:
                 print("set destination")
@@ -92,7 +96,7 @@ class serverClass:
             with open(f"{serverClass.PATH}/{userName}.txt", "a") as f:
                 msg["time"] = time
                 msg["source"] = userName
-                msg["dest"] = "B"
+                msg["dest"] = destination
                 msg["msg"] = fullCltMsg
                 storeMsgData["fullMsg"] = msg
                 print(storeMsgData)
