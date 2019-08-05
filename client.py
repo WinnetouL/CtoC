@@ -10,6 +10,7 @@ class clientClass:
     TCP_PORT = 1234
     HEADERSIZE = 20
     USERNAME = ""
+    LOCK = threading.Lock()
 
     def __init__(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -23,26 +24,34 @@ class clientClass:
         t1 = threading.Thread(target=self.recv)
         t1.daemon = True
         t1.start()
+        t2 = threading.Thread(target=self.send, args=("{switch}",))
+        t2.start()
         while True:
             msgOrTypeOfMsg = input(f"<{clientClass.USERNAME}> ({{switch}}/{{quit}})")
-            t2 = threading.Thread(target=self.send, args=(msgOrTypeOfMsg,))
-            t2.start()
+            t3 = threading.Thread(target=self.send, args=(msgOrTypeOfMsg,))
+            t3.start()
 
     def send(self, msgOrTypeOfMsg="!"):
-        if msgOrTypeOfMsg == "{switch}":
-            print(msgOrTypeOfMsg, "switch")
-        elif msgOrTypeOfMsg == "{quit}":
-            print(msgOrTypeOfMsg, "quit")
-        elif msgOrTypeOfMsg == "{name}":
-            clientClass.USERNAME = input("Username ? ")
-            print(f"--> You chose {clientClass.USERNAME}\n")
-            userNamePrefix = msgOrTypeOfMsg + str(len(clientClass.USERNAME))
-            msg = f"{userNamePrefix:<{clientClass.HEADERSIZE}}" + clientClass.USERNAME
-            self.sock.send(bytes(msg, "utf-8"))
-        else:
-            msg = ""
-            msg = f"{len(msgOrTypeOfMsg):<{clientClass.HEADERSIZE}}" + msgOrTypeOfMsg
-            self.sock.send(bytes(msg, "utf-8"))
+        with clientClass.LOCK:
+            if msgOrTypeOfMsg == "{switch}":
+                switchPrefix = msgOrTypeOfMsg + str(len(msgOrTypeOfMsg))
+                msg = f"{switchPrefix:<{clientClass.HEADERSIZE}}" + msgOrTypeOfMsg
+                self.sock.send(bytes(msg, "utf-8"))
+                destination = input("Send to?: ")
+                switchPrefix = msgOrTypeOfMsg + str(len(destination))
+                msg = f"{switchPrefix:<{clientClass.HEADERSIZE}}" + destination
+                self.sock.send(bytes(msg, "utf-8"))
+            elif msgOrTypeOfMsg == "{quit}":
+                print(msgOrTypeOfMsg, "//quit")
+            elif msgOrTypeOfMsg == "{name}":
+                clientClass.USERNAME = input("Username ? ")
+                print(f"--> You chose {clientClass.USERNAME}\n")
+                userNamePrefix = msgOrTypeOfMsg + str(len(clientClass.USERNAME))
+                msg = f"{userNamePrefix:<{clientClass.HEADERSIZE}}" + clientClass.USERNAME
+                self.sock.send(bytes(msg, "utf-8"))
+            else:
+                msg = f"{len(msgOrTypeOfMsg):<{clientClass.HEADERSIZE}}" + msgOrTypeOfMsg
+                self.sock.send(bytes(msg, "utf-8"))
 
     def recv(self):
         try:
