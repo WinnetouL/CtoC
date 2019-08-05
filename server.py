@@ -37,7 +37,6 @@ class serverClass:
 
     def recv(self, conn):
         try:
-            userName = ""
             while True:
                 fullCltMsg = ""
                 newClientMsg = True
@@ -46,7 +45,10 @@ class serverClass:
                     if msg[:6].decode("utf-8") == "{name}" and newClientMsg is True:
                         msgLen = int(msg[6 : serverClass.HEADERSIZE])
                         newClientMsg = False
-                    elif msg[:6].decode("utf-8") != "{name}" and newClientMsg is True:
+                    elif msg[:8].decode("utf-8") == "{switch}" and newClientMsg is True:
+                        msgLen = int(msg[8 : serverClass.HEADERSIZE])
+                        newClientMsg = False
+                    elif newClientMsg is True:
                         msgLen = int(msg[: serverClass.HEADERSIZE])
                         newClientMsg = False
                     fullCltMsg += msg.decode("utf-8")
@@ -68,15 +70,21 @@ class serverClass:
         currTime = datetime.datetime.now()
         time = f"[{currTime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}]"
         if fullCltMsg[:6] == "{name}":
-            print(time, userName)
             with open(f"{serverClass.PATH}/addressTable.txt", "a") as f:
                 storeUserName = f"{userName}\n"
                 f.write(storeUserName)
                 f.close()
-            with open(f"{serverClass.PATH}/addressTable.txt", "r") as f:
-                storeUserName = f.read()
-                self.send(conn, storeUserName)
-                f.close()
+        elif fullCltMsg[:8] == "{switch}":
+            if fullCltMsg[serverClass.HEADERSIZE :] == "{switch}":
+                print("addresstable")
+                with open(f"{serverClass.PATH}/addressTable.txt", "r") as f:
+                    storeUserName = f.read()
+                    self.send(conn, storeUserName)
+                    f.close()
+            else:
+                print("set destination")
+        elif fullCltMsg[:6] == "{quit}":
+            print("quit reached")
         else:
             fullCltMsg = fullCltMsg[serverClass.HEADERSIZE :]
             storeMsgData = {}
