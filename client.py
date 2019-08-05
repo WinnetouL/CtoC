@@ -1,6 +1,7 @@
 # + set username
 # + provide functionality to switch contact to chat with, quit and send messages
 
+import time
 import socket
 import threading
 
@@ -27,9 +28,13 @@ class clientClass:
         t2 = threading.Thread(target=self.send, args=("{switch}",))
         t2.start()
         while True:
-            msgOrTypeOfMsg = input(f"<{clientClass.USERNAME}> ({{switch}}/{{quit}})")
-            t3 = threading.Thread(target=self.send, args=(msgOrTypeOfMsg,))
-            t3.start()
+            if t2.isAlive() is False:
+                msgOrTypeOfMsg = input(f"<{clientClass.USERNAME}> ({{switch}}/{{quit}})")
+                t3 = threading.Thread(target=self.send, args=(msgOrTypeOfMsg,))
+                t3.start()
+            else:
+                time.sleep(2)
+                pass
 
     def send(self, msgOrTypeOfMsg="!"):
         with clientClass.LOCK:
