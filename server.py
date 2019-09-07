@@ -90,19 +90,46 @@ class serverClass:
         elif fullCltMsg[:6] == "{quit}":
             print("quit reached")
         else:
+            conversation = []
+            for file in os.listdir(serverClass.PATH):
+                pureConvName = os.path.splitext(file)[0]
+                conversation.append(pureConvName)
+            index, trueOrFalse = serverObject.checkConvExist(conversation, userName, destination)
             fullCltMsg = fullCltMsg[serverClass.HEADERSIZE :]
             storeMsgData = {}
             msg = {}
-            with open(f"{serverClass.PATH}/{userName}.txt", "a") as f:
-                msg["time"] = time
-                msg["source"] = userName
-                msg["dest"] = destination
-                msg["msg"] = fullCltMsg
-                storeMsgData["fullMsg"] = msg
-                print(storeMsgData)
-                json_data = json.dumps(storeMsgData)
-                f.write(json_data + "\n")
-            f.close()
+            if trueOrFalse is True:
+                with open(f"{serverClass.PATH}/{conversation[index]}.txt", "a") as f:
+                    msg["time"] = time
+                    msg["source"] = userName
+                    msg["dest"] = destination
+                    msg["msg"] = fullCltMsg
+                    storeMsgData["fullMsg"] = msg
+                    json_data = json.dumps(storeMsgData)
+                    f.write(json_data + "\n")
+                f.close()
+            elif trueOrFalse is False:
+                with open(f"{serverClass.PATH}/{userName}-{destination}.txt", "a") as f:
+                    msg["time"] = time
+                    msg["source"] = userName
+                    msg["dest"] = destination
+                    msg["msg"] = fullCltMsg
+                    storeMsgData["fullMsg"] = msg
+                    json_data = json.dumps(storeMsgData)
+                    f.write(json_data + "\n")
+                f.close()
+
+    def checkConvExist(self, conversation, userName, destination):
+        if f"{userName}-{destination}" in conversation:
+            print("found: ", conversation.index(f"{userName}-{destination}"))
+            a = conversation.index(f"{userName}-{destination}")
+            return a, True
+        elif f"{destination}-{userName}" in conversation:
+            print("found: ", conversation.index(f"{destination}-{userName}"))
+            a = conversation.index(f"{destination}-{userName}")
+            return a, True
+        else:
+            return None, False
 
 
 serverObject = serverClass()
