@@ -14,6 +14,7 @@ class serverClass:
     TCP_PORT = 1234
     HEADERSIZE = 20
     PATH = f"{os.getcwd()}/storage"
+    ALLCONN = []
 
     def __init__(self):
         print("---- Server active - waiting for connections ----\n")
@@ -31,6 +32,8 @@ class serverClass:
         serverMsg = "Welcome mate from server"
         while True:
             conn, addr = self.sock.accept()
+            serverObject.ALLCONN.append(conn)
+            serverObject.ALLCONN.append(None)
             threading.Thread(target=self.send, args=(conn, serverMsg)).start()
             threading.Thread(target=self.recv, args=(conn,)).start()
             print("Connection from: Server ", socket.gethostbyname(socket.gethostname()), " to Client: ", addr[0])
@@ -74,13 +77,17 @@ class serverClass:
         currTime = datetime.datetime.now()
         time = f"[{currTime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}]"
         if fullCltMsg[:6] == "{name}":
+            for counter, value in enumerate(serverObject.ALLCONN):
+                print(value)
+                if value is None:
+                    serverObject.ALLCONN[counter] = userName
+                    break
             with open(f"{serverClass.PATH}/addressTable.txt", "a") as f:
                 storeUserName = f"{userName}\n"
                 f.write(storeUserName)
                 f.close()
         elif fullCltMsg[:8] == "{switch}":
             if fullCltMsg[serverClass.HEADERSIZE :] == "{switch}":
-                print("addresstable")
                 with open(f"{serverClass.PATH}/addressTable.txt", "r") as f:
                     storedUserNames = f.read()
                     self.send(conn, storedUserNames)
@@ -94,12 +101,12 @@ class serverClass:
             for file in os.listdir(serverClass.PATH):
                 pureConvName = os.path.splitext(file)[0]
                 conversation.append(pureConvName)
-            index, trueOrFalse = serverObject.checkConvExist(conversation, userName, destination)
+            indexNr, trueOrFalse = serverObject.checkConvExist(conversation, userName, destination)
             fullCltMsg = fullCltMsg[serverClass.HEADERSIZE :]
             storeMsgData = {}
             msg = {}
             if trueOrFalse is True:
-                with open(f"{serverClass.PATH}/{conversation[index]}.txt", "a") as f:
+                with open(f"{serverClass.PATH}/{conversation[indexNr]}.txt", "a") as f:
                     msg["time"] = time
                     msg["source"] = userName
                     msg["dest"] = destination
@@ -121,13 +128,11 @@ class serverClass:
 
     def checkConvExist(self, conversation, userName, destination):
         if f"{userName}-{destination}" in conversation:
-            print("found: ", conversation.index(f"{userName}-{destination}"))
-            a = conversation.index(f"{userName}-{destination}")
-            return a, True
+            indexNr = conversation.index(f"{userName}-{destination}")
+            return indexNr, True
         elif f"{destination}-{userName}" in conversation:
-            print("found: ", conversation.index(f"{destination}-{userName}"))
-            a = conversation.index(f"{destination}-{userName}")
-            return a, True
+            indexNr = conversation.index(f"{destination}-{userName}")
+            return indexNr, True
         else:
             return None, False
 
