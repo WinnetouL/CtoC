@@ -70,7 +70,7 @@ class clientClass:
                         newServerMsg = False
                     fullServerMsg += msg.decode("utf-8")
                     if len(fullServerMsg) - clientClass.HEADERSIZE == msgLen:
-                        print("\n<server> ", fullServerMsg[clientClass.HEADERSIZE :])
+                        print("\n", fullServerMsg[clientClass.HEADERSIZE :])
                         break
         except ConnectionResetError as e:
             print("Server closed the connection\n", "OS-Error:", e, "\nApplication quitted")
