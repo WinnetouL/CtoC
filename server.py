@@ -3,6 +3,7 @@
 # + provide functionality to send messages to chosen destinations
 
 import os
+import time
 import json
 import socket
 import datetime
@@ -15,6 +16,7 @@ class serverClass:
     HEADERSIZE = 20
     PATH = f"{os.getcwd()}/storage"
     ALLCONN = []
+    STOPSERVERSEND = False
 
     def __init__(self):
         print("---- Server active - waiting for connections ----\n")
@@ -30,12 +32,29 @@ class serverClass:
             print(f"Successfully created the directory {serverClass.PATH}")
         self.sock.listen(3)
         serverMsg = "Welcome mate from server"
+        t1 = threading.Thread(target=serverObject.send, daemon=True)
+        t1.start()
+        allConnContrast = []
         while True:
             conn, addr = self.sock.accept()
             serverObject.ALLCONN.append(conn)
             serverObject.ALLCONN.append(None)
-            threading.Thread(target=self.send, args=(conn, serverMsg)).start()
+            threading.Thread(target=self.sendServer, args=(conn, serverMsg)).start()
             threading.Thread(target=self.recv, args=(conn,)).start()
+            if allConnContrast != serverObject.ALLCONN:
+                serverObject.STOPSERVERSEND = True
+                allConnContrast = serverObject.ALLCONN.copy()
+                while True:
+                    if t1.is_alive() is False:
+                        serverObject.STOPSERVERSEND = False
+                        t1 = threading.Thread(target=serverObject.send, daemon=True)
+                        t1.start()
+                        break
+                    else:
+                        time.sleep(1)
+                        pass
+            else:
+                print("equal lists")
             print("Connection from: Server ", socket.gethostbyname(socket.gethostname()), " to Client: ", addr[0])
 
     def recv(self, conn):
@@ -68,7 +87,7 @@ class serverClass:
         except ConnectionResetError:
             print("--- Client closed the window ---")
 
-    def send(self, conn, storedUserNames):
+    def sendServer(self, conn, storedUserNames):
         msg = storedUserNames
         msg = f"{len(msg):<{serverClass.HEADERSIZE}}" + msg
         conn.send(bytes(msg, "utf-8"))
@@ -78,7 +97,6 @@ class serverClass:
         time = f"[{currTime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}]"
         if fullCltMsg[:6] == "{name}":
             for counter, value in enumerate(serverObject.ALLCONN):
-                print(value)
                 if value is None:
                     serverObject.ALLCONN[counter] = userName
                     break
@@ -90,58 +108,55 @@ class serverClass:
             if fullCltMsg[serverClass.HEADERSIZE :] == "{switch}":
                 with open(f"{serverClass.PATH}/addressTable.txt", "r") as f:
                     storedUserNames = f.read()
-                    self.send(conn, storedUserNames)
+                    self.sendServer(conn, storedUserNames)
                     f.close()
             else:
                 print("set destination")
         elif fullCltMsg[:6] == "{quit}":
             print("quit reached")
         else:
-            conversation = []
-            for file in os.listdir(serverClass.PATH):
-                pureConvName = os.path.splitext(file)[0]
-                conversation.append(pureConvName)
-            indexNr, trueOrFalse = serverObject.checkConvExist(conversation, userName, destination)
             fullCltMsg = fullCltMsg[serverClass.HEADERSIZE :]
             storeMsgData = {}
             msg = {}
-            if trueOrFalse is True:
-                with open(f"{serverClass.PATH}/{conversation[indexNr]}.txt", "a") as f:
-                    msg["time"] = time
-                    msg["source"] = userName
-                    msg["dest"] = destination
-                    msg["msg"] = fullCltMsg
-                    storeMsgData["fullMsg"] = msg
-                    json_data = json.dumps(storeMsgData)
-                    f.write(json_data + "\n")
-                f.close()
-            elif trueOrFalse is False:
-                with open(f"{serverClass.PATH}/{userName}-{destination}.txt", "a") as f:
-                    msg["time"] = time
-                    msg["source"] = userName
-                    msg["dest"] = destination
-                    msg["msg"] = fullCltMsg
-                    storeMsgData["fullMsg"] = msg
-                    json_data = json.dumps(storeMsgData)
-                    f.write(json_data + "\n")
-                f.close()
+            with open(f"{serverClass.PATH}/{destination}.txt", "a") as f:
+                msg["time"] = time
+                msg["source"] = userName
+                msg["dest"] = destination
+                msg["msg"] = fullCltMsg
+                storeMsgData["fullMsg"] = msg
+                jsonData = json.dumps(storeMsgData)
+                f.write(jsonData + "\n")
+            f.close
+            try:
+                open(f"{serverClass.PATH}/update-{destination}", "x").close()
+            except FileExistsError:
+                pass
 
-    def checkConvExist(self, conversation, userName, destination):
-        if f"{userName}-{destination}" in conversation:
-            indexNr = conversation.index(f"{userName}-{destination}")
-            return indexNr, True
-        elif f"{destination}-{userName}" in conversation:
-            indexNr = conversation.index(f"{destination}-{userName}")
-            return indexNr, True
-        else:
-            return None, False
+    def send(self):
+        while not serverObject.STOPSERVERSEND:
+            for counter, value in enumerate(serverObject.ALLCONN):
+                if counter % 2 != 0 and value is not None:
+                    update = f"{serverClass.PATH}/update-{value}"
+                    if os.path.exists(update):
+                        os.remove(update)
+                        convPath = f"{serverClass.PATH}/{value}.txt"
+                        try:
+                            indexNr = counter - 1
+                            conn = serverObject.ALLCONN[indexNr]
+                            with open(convPath, "r") as f:
+                                for line in f:
+                                    data = json.loads(line)
+                                    source = data["fullMsg"]["source"]
+                                    msg = data["fullMsg"]["msg"]
+                                    msg = f"<{source}> {msg}"
+                                    msg = f"{len(msg):<{serverClass.HEADERSIZE}}" + msg
+                                    time.sleep(0.5)  # python's receive function is too slow -> delay
+                                    conn.send(bytes(msg, "utf-8"))
+                            f.close()
+                        except FileNotFoundError:  # when a user didn't receive a msg the file does not exist
+                            print("NOT found ", convPath)
+            time.sleep(2)
 
 
 serverObject = serverClass()
 serverObject.main()
-
-
-# end application properly
-# deny doubled usernames
-# deny empty usernames
-# user handling according to usernames
