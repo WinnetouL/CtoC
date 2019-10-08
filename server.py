@@ -118,6 +118,12 @@ class serverClass:
             fullCltMsg = fullCltMsg[serverClass.HEADERSIZE :]
             storeMsgData = {}
             msg = {}
+            update = f"{serverClass.PATH}/update-{destination}"
+            try:
+                if not os.path.exists(update):
+                    os.remove(f"{serverClass.PATH}/{destination}.txt")
+            except FileNotFoundError:  # is the case for the very first message a user gets
+                pass
             with open(f"{serverClass.PATH}/{destination}.txt", "a") as f:
                 msg["time"] = time
                 msg["source"] = userName
