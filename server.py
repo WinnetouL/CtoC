@@ -17,6 +17,8 @@ class serverClass:
     PATH = f"{os.getcwd()}/storage"
     ALLCONN = []
     STOPSERVERSEND = False
+    LENBYTENAME = len(b"{name}")
+    LENBYTESWITCH = len(b"{switch}")
 
     def __init__(self):
         print("---- Server active - waiting for connections ----\n")
@@ -65,10 +67,10 @@ class serverClass:
                 newClientMsg = True
                 while True:
                     msg = conn.recv(32)
-                    if newClientMsg is True and msg[: len(b"{name}")] == b"{name}":
+                    if newClientMsg is True and msg[: serverObject.LENBYTENAME] == b"{name}":
                         msgLen = int(msg[6 : serverClass.HEADERSIZE])
                         newClientMsg = False
-                    elif newClientMsg is True and msg[: len(b"{switch}")] == b"{switch}":
+                    elif newClientMsg is True and msg[: serverObject.LENBYTESWITCH] == b"{switch}":
                         msgLen = int(msg[8 : serverClass.HEADERSIZE])
                         newClientMsg = False
                     elif newClientMsg is True:
@@ -76,11 +78,11 @@ class serverClass:
                         newClientMsg = False
                     fullCltMsg += msg
                     if len(fullCltMsg) - serverClass.HEADERSIZE == msgLen:
-                        if fullCltMsg[: len(b"{name}")] == b"{name}":
+                        if fullCltMsg[: serverObject.LENBYTENAME] == b"{name}":
                             userName = f"{fullCltMsg[serverClass.HEADERSIZE :].decode('utf-8')}"
                             print("<client> -->", userName)
                         if fullCltMsg[: len(b"{switch}")] == b"{switch}":
-                            if fullCltMsg[serverClass.HEADERSIZE :] != "{switch}":
+                            if fullCltMsg[serverClass.HEADERSIZE :] != b"{switch}":
                                 destination = f"{fullCltMsg[serverClass.HEADERSIZE :].decode('utf-8')}"
                         fullCltMsg = fullCltMsg.decode("utf-8")
                         self.store(fullCltMsg, userName, destination, conn)
@@ -158,8 +160,7 @@ class serverClass:
                                     msg = f"<{source}> {msg}"
                                     time.sleep(0.5)  # python's receive function is too slow -> delay
                                     msg = f"{str(len(msg.encode('utf-8'))):<{serverObject.HEADERSIZE}}" + msg
-                                    msg = msg.encode("utf-8")
-                                    conn.send(msg)
+                                    conn.send(bytes(msg, "utf-8"))
                             f.close()
                         except FileNotFoundError:  # when a user didn't receive a msg the file does not exist
                             print("NOT found ", convPath)
