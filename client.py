@@ -41,13 +41,11 @@ class clientClass:
             if msgOrTypeOfMsg == "{switch}":
                 switchPrefix = msgOrTypeOfMsg + str(len(msgOrTypeOfMsg.encode("utf-8")))
                 msg = f"{switchPrefix:<{clientClass.HEADERSIZE}}" + msgOrTypeOfMsg
-                msg = msg.encode("utf-8")
-                self.sock.send(msg)
+                self.sock.send(bytes(msg, "utf-8"))
                 destination = input("Send to?: ")
                 switchPrefix = msgOrTypeOfMsg + str(len(destination.encode("utf-8")))
                 msg = f"{switchPrefix:<{clientClass.HEADERSIZE}}" + destination
-                msg = msg.encode("utf-8")
-                self.sock.send(msg)
+                self.sock.send(bytes(msg, "utf-8"))
             elif msgOrTypeOfMsg == "{quit}":
                 print(msgOrTypeOfMsg, "//quit")
             elif msgOrTypeOfMsg == "{name}":
@@ -55,12 +53,10 @@ class clientClass:
                 print(f"--> You chose {clientClass.USERNAME}\n")
                 userNamePrefix = msgOrTypeOfMsg + str(len(clientClass.USERNAME.encode("utf-8")))
                 msg = f"{userNamePrefix:<{clientClass.HEADERSIZE}}" + clientClass.USERNAME
-                msg = msg.encode("utf-8")
-                self.sock.send(msg)
+                self.sock.send(bytes(msg, "utf-8"))
             else:
                 msg = f"{str(len(msgOrTypeOfMsg.encode('utf-8'))):<{clientClass.HEADERSIZE}}" + msgOrTypeOfMsg
-                msg = msg.encode("utf-8")
-                self.sock.send(msg)
+                self.sock.send(bytes(msg, "utf-8"))
 
     def recv(self):
         try:
