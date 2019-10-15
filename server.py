@@ -61,27 +61,28 @@ class serverClass:
         try:
             destination = ""
             while True:
-                fullCltMsg = ""
+                fullCltMsg = bytearray()
                 newClientMsg = True
                 while True:
-                    msg = conn.recv(25)
-                    if msg[:6].decode("utf-8") == "{name}" and newClientMsg is True:
+                    msg = conn.recv(32)
+                    if newClientMsg is True and msg[: len(b"{name}")] == b"{name}":
                         msgLen = int(msg[6 : serverClass.HEADERSIZE])
                         newClientMsg = False
-                    elif msg[:8].decode("utf-8") == "{switch}" and newClientMsg is True:
+                    elif newClientMsg is True and msg[: len(b"{switch}")] == b"{switch}":
                         msgLen = int(msg[8 : serverClass.HEADERSIZE])
                         newClientMsg = False
                     elif newClientMsg is True:
                         msgLen = int(msg[: serverClass.HEADERSIZE])
                         newClientMsg = False
-                    fullCltMsg += msg.decode("utf-8")
+                    fullCltMsg += msg
                     if len(fullCltMsg) - serverClass.HEADERSIZE == msgLen:
-                        if fullCltMsg[:6] == "{name}":
-                            userName = f"{fullCltMsg[serverClass.HEADERSIZE :]}"
+                        if fullCltMsg[: len(b"{name}")] == b"{name}":
+                            userName = f"{fullCltMsg[serverClass.HEADERSIZE :].decode('utf-8')}"
                             print("<client> -->", userName)
-                        if fullCltMsg[:8] == "{switch}":
+                        if fullCltMsg[: len(b"{switch}")] == b"{switch}":
                             if fullCltMsg[serverClass.HEADERSIZE :] != "{switch}":
-                                destination = f"{fullCltMsg[serverClass.HEADERSIZE :]}"
+                                destination = f"{fullCltMsg[serverClass.HEADERSIZE :].decode('utf-8')}"
+                        fullCltMsg = fullCltMsg.decode("utf-8")
                         self.store(fullCltMsg, userName, destination, conn)
                         break
         except ConnectionResetError:
@@ -155,9 +156,10 @@ class serverClass:
                                     source = data["fullMsg"]["source"]
                                     msg = data["fullMsg"]["msg"]
                                     msg = f"<{source}> {msg}"
-                                    msg = f"{len(msg):<{serverClass.HEADERSIZE}}" + msg
                                     time.sleep(0.5)  # python's receive function is too slow -> delay
-                                    conn.send(bytes(msg, "utf-8"))
+                                    msg = f"{str(len(msg.encode('utf-8'))):<{serverObject.HEADERSIZE}}" + msg
+                                    msg = msg.encode("utf-8")
+                                    conn.send(msg)
                             f.close()
                         except FileNotFoundError:  # when a user didn't receive a msg the file does not exist
                             print("NOT found ", convPath)
