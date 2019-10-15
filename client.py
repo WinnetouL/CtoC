@@ -39,37 +39,42 @@ class clientClass:
     def send(self, msgOrTypeOfMsg="!"):
         with clientClass.LOCK:
             if msgOrTypeOfMsg == "{switch}":
-                switchPrefix = msgOrTypeOfMsg + str(len(msgOrTypeOfMsg))
+                switchPrefix = msgOrTypeOfMsg + str(len(msgOrTypeOfMsg.encode("utf-8")))
                 msg = f"{switchPrefix:<{clientClass.HEADERSIZE}}" + msgOrTypeOfMsg
-                self.sock.send(bytes(msg, "utf-8"))
+                msg = msg.encode("utf-8")
+                self.sock.send(msg)
                 destination = input("Send to?: ")
-                switchPrefix = msgOrTypeOfMsg + str(len(destination))
+                switchPrefix = msgOrTypeOfMsg + str(len(destination.encode("utf-8")))
                 msg = f"{switchPrefix:<{clientClass.HEADERSIZE}}" + destination
-                self.sock.send(bytes(msg, "utf-8"))
+                msg = msg.encode("utf-8")
+                self.sock.send(msg)
             elif msgOrTypeOfMsg == "{quit}":
                 print(msgOrTypeOfMsg, "//quit")
             elif msgOrTypeOfMsg == "{name}":
                 clientClass.USERNAME = input("Username ? ")
                 print(f"--> You chose {clientClass.USERNAME}\n")
-                userNamePrefix = msgOrTypeOfMsg + str(len(clientClass.USERNAME))
+                userNamePrefix = msgOrTypeOfMsg + str(len(clientClass.USERNAME.encode("utf-8")))
                 msg = f"{userNamePrefix:<{clientClass.HEADERSIZE}}" + clientClass.USERNAME
-                self.sock.send(bytes(msg, "utf-8"))
+                msg = msg.encode("utf-8")
+                self.sock.send(msg)
             else:
-                msg = f"{len(msgOrTypeOfMsg):<{clientClass.HEADERSIZE}}" + msgOrTypeOfMsg
-                self.sock.send(bytes(msg, "utf-8"))
+                msg = f"{str(len(msgOrTypeOfMsg.encode('utf-8'))):<{clientClass.HEADERSIZE}}" + msgOrTypeOfMsg
+                msg = msg.encode("utf-8")
+                self.sock.send(msg)
 
     def recv(self):
         try:
             while True:
-                fullServerMsg = ""
+                fullServerMsg = bytearray()
                 newServerMsg = True
                 while True:
-                    msg = self.sock.recv(25)
+                    msg = self.sock.recv(32)
                     if newServerMsg is True:
                         msgLen = int(msg[: clientClass.HEADERSIZE])
                         newServerMsg = False
-                    fullServerMsg += msg.decode("utf-8")
+                    fullServerMsg += msg
                     if len(fullServerMsg) - clientClass.HEADERSIZE == msgLen:
+                        fullServerMsg = fullServerMsg.decode("utf-8")
                         print(f"\n{fullServerMsg[clientClass.HEADERSIZE :]}")
                         break
         except ConnectionResetError as e:
