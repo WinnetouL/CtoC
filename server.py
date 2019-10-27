@@ -10,7 +10,14 @@ import datetime
 import threading
 
 
-class serverClass:
+class User:
+    def __init__(self, connection=None, name=None, online=False):
+        self.connection = connection
+        self.name = name
+        self.online = online
+
+
+class serverClass(User):
     TCP_IP = socket.gethostbyname(socket.gethostname())
     TCP_PORT = 1234
     HEADERSIZE = 20
@@ -39,8 +46,7 @@ class serverClass:
         allConnContrast = []
         while True:
             conn, addr = self.sock.accept()
-            serverObject.ALLCONN.append(conn)
-            serverObject.ALLCONN.append(None)
+            serverObject.ALLCONN.append(User(connection=conn))
             threading.Thread(target=self.sendServer, args=(conn, serverMsg)).start()
             threading.Thread(target=self.recv, args=(conn,)).start()
             if allConnContrast != serverObject.ALLCONN:
@@ -89,6 +95,10 @@ class serverClass:
                         break
         except ConnectionResetError:
             print("--- Client closed the window ---")
+            for counter, value in enumerate(serverObject.ALLCONN):
+                if value.connection == conn:
+                    print("removed ", value.name)
+                    del serverObject.ALLCONN[counter]
 
     def sendServer(self, conn, storedUserNames):
         msg = storedUserNames
@@ -99,9 +109,10 @@ class serverClass:
         currTime = datetime.datetime.now()
         time = f"[{currTime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}]"
         if fullCltMsg[:6] == "{name}":
-            for counter, value in enumerate(serverObject.ALLCONN):
-                if value is None:
-                    serverObject.ALLCONN[counter] = userName
+            for userObject in serverObject.ALLCONN:
+                if userObject.connection == conn:
+                    userObject.name = userName
+                    userObject.online = True
                     break
             with open(f"{serverClass.PATH}/addressTable.txt", "a") as f:
                 storeUserName = f"{userName}\n"
@@ -143,15 +154,14 @@ class serverClass:
 
     def send(self):
         while not serverObject.STOPSERVERSEND:
-            for counter, value in enumerate(serverObject.ALLCONN):
-                if counter % 2 != 0 and value is not None:
-                    update = f"{serverClass.PATH}/update-{value}"
+            for userObject in serverObject.ALLCONN:
+                if userObject.online is True:
+                    update = f"{serverClass.PATH}/update-{userObject.name}"
                     if os.path.exists(update):
                         os.remove(update)
-                        convPath = f"{serverClass.PATH}/{value}.txt"
+                        convPath = f"{serverClass.PATH}/{userObject.name}.txt"
                         try:
-                            indexNr = counter - 1
-                            conn = serverObject.ALLCONN[indexNr]
+                            conn = userObject.connection
                             with open(convPath, "r") as f:
                                 for line in f:
                                     data = json.loads(line)
