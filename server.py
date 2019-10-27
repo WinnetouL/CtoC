@@ -91,7 +91,10 @@ class serverClass(User):
                             if fullCltMsg[serverClass.HEADERSIZE :] != b"{switch}":
                                 destination = f"{fullCltMsg[serverClass.HEADERSIZE :].decode('utf-8')}"
                         fullCltMsg = fullCltMsg.decode("utf-8")
-                        self.store(fullCltMsg, userName, destination, conn)
+                        try:
+                            self.store(fullCltMsg, userName, destination, conn)
+                        except UnboundLocalError:
+                            pass
                         break
         except ConnectionResetError:
             print("--- Client closed the window ---")
