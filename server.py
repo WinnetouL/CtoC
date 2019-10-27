@@ -114,16 +114,13 @@ class serverClass(User):
                     userObject.name = userName
                     userObject.online = True
                     break
-            with open(f"{serverClass.PATH}/addressTable.txt", "a") as f:
-                storeUserName = f"{userName}\n"
-                f.write(storeUserName)
-                f.close()
         elif fullCltMsg[:8] == "{switch}":
             if fullCltMsg[serverClass.HEADERSIZE :] == "{switch}":
-                with open(f"{serverClass.PATH}/addressTable.txt", "r") as f:
-                    storedUserNames = f.read()
-                    self.sendServer(conn, storedUserNames)
-                    f.close()
+                storedUserNames = []
+                for userObject in serverObject.ALLCONN:
+                    if userObject.online is True:
+                        storedUserNames.append(userObject.name)
+                self.sendServer(conn, str(storedUserNames))
             else:
                 print("set destination")
         elif fullCltMsg[:6] == "{quit}":
