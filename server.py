@@ -54,9 +54,7 @@ class serverClass(User):
             print(f"Successfully created the directory {serverClass.PATH}")
         self.sock.listen(3)
         serverMsg = "Welcome mate from server"
-        t1 = threading.Thread(target=serverObject.send, daemon=True)
-        t1.start()
-        allConnContrast = []
+        threading.Thread(target=serverObject.send, daemon=True).start()
         while True:
             conn, addr = self.sock.accept()
             userObject = User()
@@ -64,20 +62,6 @@ class serverClass(User):
             serverObject.ALLCONN.append(userObject)
             threading.Thread(target=self.sendServer, args=(conn, serverMsg)).start()
             threading.Thread(target=self.recv, args=(conn,)).start()
-            if allConnContrast != serverObject.ALLCONN:
-                serverObject.STOPSERVERSEND = True
-                allConnContrast = serverObject.ALLCONN.copy()
-                while True:
-                    if t1.is_alive() is False:
-                        serverObject.STOPSERVERSEND = False
-                        t1 = threading.Thread(target=serverObject.send, daemon=True)
-                        t1.start()
-                        break
-                    else:
-                        time.sleep(1)
-                        pass
-            else:
-                print("equal lists")
             print("Connection from: Server ", socket.gethostbyname(socket.gethostname()), " to Client: ", addr[0])
 
     def recv(self, conn):
