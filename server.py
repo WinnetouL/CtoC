@@ -30,29 +30,28 @@ class User:
             self.online = status
 
 
-class serverClass(User):
+class ServerClass(User):
     TCP_IP = socket.gethostbyname(socket.gethostname())
     TCP_PORT = 1234
     HEADERSIZE = 20
     PATH = f"{os.getcwd()}/storage"
     ALLCONN = []
-    STOPSERVERSEND = False
     LENBYTENAME = len(b"{name}")
     LENBYTESWITCH = len(b"{switch}")
 
     def __init__(self):
         print("---- Server active - waiting for connections ----\n")
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind((serverClass.TCP_IP, serverClass.TCP_PORT))
+        self.sock.bind((ServerClass.TCP_IP, ServerClass.TCP_PORT))
         self.serverLock = threading.Lock()
 
     def main(self):
         try:
-            os.mkdir(serverClass.PATH)
+            os.mkdir(ServerClass.PATH)
         except OSError:
-            print(f"Creation of the directory {serverClass.PATH} failed or already exists")
+            print(f"Creation of the directory {ServerClass.PATH} failed or already exists")
         else:
-            print(f"Successfully created the directory {serverClass.PATH}")
+            print(f"Successfully created the directory {ServerClass.PATH}")
         self.sock.listen(3)
         serverMsg = "Welcome mate from server"
         threading.Thread(target=serverObject.send, daemon=True).start()
@@ -73,23 +72,23 @@ class serverClass(User):
                 newClientMsg = True
                 while True:
                     msg = conn.recv(32)
-                    if newClientMsg is True and msg[: serverObject.LENBYTENAME] == b"{name}":
-                        msgLen = int(msg[6 : serverClass.HEADERSIZE])
+                    if newClientMsg and msg[: serverObject.LENBYTENAME] == b"{name}":
+                        msgLen = int(msg[6 : ServerClass.HEADERSIZE])
                         newClientMsg = False
-                    elif newClientMsg is True and msg[: serverObject.LENBYTESWITCH] == b"{switch}":
-                        msgLen = int(msg[8 : serverClass.HEADERSIZE])
+                    elif newClientMsg and msg[: serverObject.LENBYTESWITCH] == b"{switch}":
+                        msgLen = int(msg[8 : ServerClass.HEADERSIZE])
                         newClientMsg = False
-                    elif newClientMsg is True:
-                        msgLen = int(msg[: serverClass.HEADERSIZE])
+                    elif newClientMsg:
+                        msgLen = int(msg[: ServerClass.HEADERSIZE])
                         newClientMsg = False
                     fullCltMsg += msg
-                    if len(fullCltMsg) - serverClass.HEADERSIZE == msgLen:
+                    if len(fullCltMsg) - ServerClass.HEADERSIZE == msgLen:
                         if fullCltMsg[: serverObject.LENBYTENAME] == b"{name}":
-                            userName = f"{fullCltMsg[serverClass.HEADERSIZE :].decode('utf-8')}"
+                            userName = f"{fullCltMsg[ServerClass.HEADERSIZE :].decode('utf-8')}"
                             print("<client> -->", userName)
                         if fullCltMsg[: len(b"{switch}")] == b"{switch}":
-                            if fullCltMsg[serverClass.HEADERSIZE :] != b"{switch}":
-                                destination = f"{fullCltMsg[serverClass.HEADERSIZE :].decode('utf-8')}"
+                            if fullCltMsg[ServerClass.HEADERSIZE :] != b"{switch}":
+                                destination = f"{fullCltMsg[ServerClass.HEADERSIZE :].decode('utf-8')}"
                         fullCltMsg = fullCltMsg.decode("utf-8")
                         try:
                             self.store(fullCltMsg, userName, destination, conn)
@@ -106,13 +105,13 @@ class serverClass(User):
         with self.serverLock:
             if addOrRm:
                 serverObject.ALLCONN.append(userObject)
-            elif addOrRm is False:
+            elif not addOrRm:
                 print("removed ", userObject.userName)
                 del serverObject.ALLCONN[userListLocation]
 
     def sendServer(self, conn, activeUsers):
         msg = activeUsers
-        msg = f"{len(msg):<{serverClass.HEADERSIZE}}" + msg
+        msg = f"{len(msg):<{ServerClass.HEADERSIZE}}" + msg
         conn.send(bytes(msg, "utf-8"))
 
     def store(self, fullCltMsg, userName, destination, conn):
@@ -125,10 +124,10 @@ class serverClass(User):
                     userObject.state(True)
                     break
         elif fullCltMsg[:8] == "{switch}":
-            if fullCltMsg[serverClass.HEADERSIZE :] == "{switch}":
+            if fullCltMsg[ServerClass.HEADERSIZE :] == "{switch}":
                 activeUsers = []
                 for userObject in serverObject.ALLCONN:
-                    if userObject.online is True:
+                    if userObject.online:
                         activeUsers.append(userObject.userName)
                 self.sendServer(conn, str(activeUsers))
             else:
@@ -136,16 +135,16 @@ class serverClass(User):
         elif fullCltMsg[:6] == "{quit}":
             print("quit reached")
         else:
-            fullCltMsg = fullCltMsg[serverClass.HEADERSIZE :]
+            fullCltMsg = fullCltMsg[ServerClass.HEADERSIZE :]
             storeMsgData = {}
             msg = {}
-            update = f"{serverClass.PATH}/update-{destination}"
+            update = f"{ServerClass.PATH}/update-{destination}"
             try:
                 if not os.path.exists(update):
-                    os.remove(f"{serverClass.PATH}/{destination}.txt")
+                    os.remove(f"{ServerClass.PATH}/{destination}.txt")
             except FileNotFoundError:  # is the case for the very first message a user gets
                 pass
-            with open(f"{serverClass.PATH}/{destination}.txt", "a") as f:
+            with open(f"{ServerClass.PATH}/{destination}.txt", "a") as f:
                 msg["time"] = time
                 msg["source"] = userName
                 msg["dest"] = destination
@@ -155,18 +154,18 @@ class serverClass(User):
                 f.write(jsonData + "\n")
             f.close
             try:
-                open(f"{serverClass.PATH}/update-{destination}", "x").close()
+                open(f"{ServerClass.PATH}/update-{destination}", "x").close()
             except FileExistsError:
                 pass
 
     def send(self):
-        while not serverObject.STOPSERVERSEND:
+        while True:
             for userObject in serverObject.ALLCONN:
-                if userObject.online is True:
-                    update = f"{serverClass.PATH}/update-{userObject.userName}"
+                if userObject.online:
+                    update = f"{ServerClass.PATH}/update-{userObject.userName}"
                     if os.path.exists(update):
                         os.remove(update)
-                        convPath = f"{serverClass.PATH}/{userObject.userName}.txt"
+                        convPath = f"{ServerClass.PATH}/{userObject.userName}.txt"
                         try:
                             conn = userObject.connection
                             with open(convPath, "r") as f:
@@ -184,5 +183,5 @@ class serverClass(User):
             time.sleep(2)
 
 
-serverObject = serverClass()
+serverObject = ServerClass()
 serverObject.main()
