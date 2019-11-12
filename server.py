@@ -44,6 +44,7 @@ class serverClass(User):
         print("---- Server active - waiting for connections ----\n")
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((serverClass.TCP_IP, serverClass.TCP_PORT))
+        self.serverLock = threading.Lock()
 
     def main(self):
         try:
@@ -59,7 +60,7 @@ class serverClass(User):
             conn, addr = self.sock.accept()
             userObject = User()
             userObject.conn(conn)
-            serverObject.ALLCONN.append(userObject)
+            self.allConnections(addOrRm=True, userObject=userObject)
             threading.Thread(target=self.sendServer, args=(conn, serverMsg)).start()
             threading.Thread(target=self.recv, args=(conn,)).start()
             print("Connection from: Server ", socket.gethostbyname(socket.gethostname()), " to Client: ", addr[0])
@@ -99,8 +100,15 @@ class serverClass(User):
             print("--- Client closed the window ---")
             for counter, value in enumerate(serverObject.ALLCONN):
                 if value.connection == conn:
-                    print("removed ", value.userName)
-                    del serverObject.ALLCONN[counter]
+                    self.allConnections(addOrRm=False, userObject=value, userListLocation=counter)
+
+    def allConnections(self, addOrRm=None, userObject=None, userListLocation=None):
+        with self.serverLock:
+            if addOrRm:
+                serverObject.ALLCONN.append(userObject)
+            elif addOrRm is False:
+                print("removed ", userObject.userName)
+                del serverObject.ALLCONN[userListLocation]
 
     def sendServer(self, conn, activeUsers):
         msg = activeUsers
