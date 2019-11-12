@@ -11,10 +11,23 @@ import threading
 
 
 class User:
-    def __init__(self, connection=None, name=None, online=False):
-        self.connection = connection
-        self.name = name
-        self.online = online
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.connection = None
+        self.userName = None
+        self.online = False
+
+    def conn(self, connection):
+        with self.lock:
+            self.connection = connection
+
+    def name(self, name):
+        with self.lock:
+            self.userName = name
+
+    def state(self, status):
+        with self.lock:
+            self.online = status
 
 
 class serverClass(User):
@@ -46,7 +59,9 @@ class serverClass(User):
         allConnContrast = []
         while True:
             conn, addr = self.sock.accept()
-            serverObject.ALLCONN.append(User(connection=conn))
+            userObject = User()
+            userObject.conn(conn)
+            serverObject.ALLCONN.append(userObject)
             threading.Thread(target=self.sendServer, args=(conn, serverMsg)).start()
             threading.Thread(target=self.recv, args=(conn,)).start()
             if allConnContrast != serverObject.ALLCONN:
@@ -100,11 +115,11 @@ class serverClass(User):
             print("--- Client closed the window ---")
             for counter, value in enumerate(serverObject.ALLCONN):
                 if value.connection == conn:
-                    print("removed ", value.name)
+                    print("removed ", value.userName)
                     del serverObject.ALLCONN[counter]
 
-    def sendServer(self, conn, storedUserNames):
-        msg = storedUserNames
+    def sendServer(self, conn, activeUsers):
+        msg = activeUsers
         msg = f"{len(msg):<{serverClass.HEADERSIZE}}" + msg
         conn.send(bytes(msg, "utf-8"))
 
@@ -114,16 +129,16 @@ class serverClass(User):
         if fullCltMsg[:6] == "{name}":
             for userObject in serverObject.ALLCONN:
                 if userObject.connection == conn:
-                    userObject.name = userName
-                    userObject.online = True
+                    userObject.name(userName)
+                    userObject.state(True)
                     break
         elif fullCltMsg[:8] == "{switch}":
             if fullCltMsg[serverClass.HEADERSIZE :] == "{switch}":
-                storedUserNames = []
+                activeUsers = []
                 for userObject in serverObject.ALLCONN:
                     if userObject.online is True:
-                        storedUserNames.append(userObject.name)
-                self.sendServer(conn, str(storedUserNames))
+                        activeUsers.append(userObject.userName)
+                self.sendServer(conn, str(activeUsers))
             else:
                 print("set destination")
         elif fullCltMsg[:6] == "{quit}":
@@ -156,10 +171,10 @@ class serverClass(User):
         while not serverObject.STOPSERVERSEND:
             for userObject in serverObject.ALLCONN:
                 if userObject.online is True:
-                    update = f"{serverClass.PATH}/update-{userObject.name}"
+                    update = f"{serverClass.PATH}/update-{userObject.userName}"
                     if os.path.exists(update):
                         os.remove(update)
-                        convPath = f"{serverClass.PATH}/{userObject.name}.txt"
+                        convPath = f"{serverClass.PATH}/{userObject.userName}.txt"
                         try:
                             conn = userObject.connection
                             with open(convPath, "r") as f:
