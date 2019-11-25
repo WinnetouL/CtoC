@@ -29,12 +29,21 @@ class ClientClass:
         t2.start()
         while True:
             if not t2.isAlive():
-                msgOrTypeOfMsg = input(f"<{ClientClass.USERNAME}> ({{switch}}/{{quit}})")
+                displayText = f"<{ClientClass.USERNAME}> ({{switch}}/{{quit}})"
+                msgOrTypeOfMsg = self.entry(displayText)
                 t3 = threading.Thread(target=self.send, args=(msgOrTypeOfMsg,))
                 t3.start()
             else:
                 time.sleep(2)
                 pass
+
+    def entry(self, displayText):
+        while True:
+            rawMsg = input(displayText)
+            if not (rawMsg and not rawMsg.isspace()):
+                pass
+            else:
+                return rawMsg
 
     def send(self, msgOrTypeOfMsg=None):
         with self.clientLock:
@@ -42,14 +51,16 @@ class ClientClass:
                 switchPrefix = msgOrTypeOfMsg + str(len(msgOrTypeOfMsg.encode("utf-8")))
                 msg = f"{switchPrefix:<{ClientClass.HEADERSIZE}}" + msgOrTypeOfMsg
                 self.sock.send(bytes(msg, "utf-8"))
-                destination = input("Send to?: ")
+                displayText = "Send to?: "
+                destination = self.entry(displayText)
                 switchPrefix = msgOrTypeOfMsg + str(len(destination.encode("utf-8")))
                 msg = f"{switchPrefix:<{ClientClass.HEADERSIZE}}" + destination
                 self.sock.send(bytes(msg, "utf-8"))
             elif msgOrTypeOfMsg == "{quit}":
                 print(msgOrTypeOfMsg, "//quit")
             elif msgOrTypeOfMsg == "{name}":
-                ClientClass.USERNAME = input("Username ? ")
+                displayText = "Username ? "
+                ClientClass.USERNAME = self.entry(displayText)
                 print(f"--> You chose {ClientClass.USERNAME}\n")
                 userNamePrefix = msgOrTypeOfMsg + str(len(ClientClass.USERNAME.encode("utf-8")))
                 msg = f"{userNamePrefix:<{ClientClass.HEADERSIZE}}" + ClientClass.USERNAME
